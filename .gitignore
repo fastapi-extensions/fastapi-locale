@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Packaging
+build/
+dist/
+*.egg-info/
+
+# Environments
+.venv/
+.env
+.env.*
+
+# Tests and tools
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.hypothesis/
+.benchmarks/
+.mypy_cache/
+.ruff_cache/
+.import_linter_cache/
+
+# Compiled catalogs are build output; .po files are the source
+*.mo
+
+# Documentation build
+site/
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Local scratch files and visual aids, never committed
+.tmp/

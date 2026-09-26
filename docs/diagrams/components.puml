@@ -1,0 +1,62 @@
+@startuml components
+!include include/style.iuml
+title Component view of the fastapi_locale package
+skinparam nodesep 40
+skinparam ranksep 60
+
+package "Integration layer\n(FastAPI, Starlette, Pydantic)" as Adapters {
+  component "Localization\n(setup and wiring)" as Integration
+  component "LocaleMiddleware" as Middleware
+  component "Locale sources" as Sources
+  component "Exception handlers\n(422 and HTTP)" as Handlers
+  component "Dependencies\n(LocaleDep, TranslatorDep)" as Deps
+  component "LazyText\n(Pydantic and encoder hooks)" as Lazy
+  component "Testing helpers" as Testing
+}
+
+package "Core\n(standard library and Babel only)" as Core {
+  component "Locale context\n(contextvars)" as Context
+  component "Translator" as Translator
+  component "Error templates" as Templates
+  component "Catalog store" as Store
+  component "Message formatting" as Formatting
+  component "Locale and\nnegotiation" as Negotiation
+}
+
+package "Tooling" as Tooling {
+  component "CLI" as Cli
+}
+
+package "External libraries" as External {
+  component "Starlette and FastAPI" as Web
+  component "Pydantic" as Pyd
+  component "Babel" as Babel
+}
+
+Integration --> Middleware : registers
+Integration --> Handlers : registers
+Integration --> Store : creates
+Testing --> Integration : forces locale
+Middleware --> Sources : candidates
+Middleware --> Negotiation : lookup
+Middleware --> Context : opens request scope
+Deps --> Context : reads
+Handlers --> Context : reads
+Handlers --> Templates : by error type
+Lazy --> Context : renders with
+
+Context --> Translator : holds active
+Translator --> Store : fallback chains
+Translator --> Formatting : placeholders
+Store --> Negotiation : tag rules
+
+Cli --> Templates : extracts messages
+
+Adapters ..> Web
+Adapters ..> Pyd
+Core ..> Babel
+Tooling ..> Babel
+
+Adapters -[hidden]down- Core
+Core -[hidden]down- External
+@enduml

@@ -1,0 +1,8 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "greater_than"
+msgid "Input should be greater than {gt}"
+msgstr "Wert muss groesser als {gt} sein (App)"

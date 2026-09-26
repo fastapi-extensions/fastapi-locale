@@ -1,0 +1,125 @@
+@startuml domain-model
+!include include/style.iuml
+title Domain model (conceptual)
+hide empty methods
+hide empty members
+top to bottom direction
+
+package "Locale resolution" as P_RES {
+  abstract class LocaleSource {
+    name
+    vary headers
+  }
+  class QueryParamSource
+  class CookieSource
+  class AcceptLanguageSource
+  class PathPrefixSource
+  class CustomSource
+  class LanguagePreference <<value object>> {
+    language range
+    {field} weight (q)
+  }
+  class Negotiation <<domain service>> {
+    RFC 4647 lookup
+  }
+  class SupportedLocales {
+    default locale
+    source locale
+  }
+  class Locale <<value object>> {
+    {field} tag (BCP 47)
+    language
+    script
+    region
+    text direction
+  }
+  class RequestLocale <<entity>> {
+    locale
+    decided by
+    overridden
+  }
+}
+
+package "Translating" as P_TR {
+  class Translator {
+    locale
+  }
+  class LazyText <<value object>> {
+    message
+    params
+  }
+}
+
+package "Catalogs" as P_CAT {
+  class FallbackChain {
+    ordered catalogs
+  }
+  class Catalog {
+    locale
+    domain
+  }
+  class Domain {
+    name
+  }
+  class PluralRule {
+    CLDR expression
+  }
+  class CatalogEntry {
+    translated forms [1..*]
+  }
+  class Message <<value object>> {
+    msgid
+    plural msgid
+    context
+  }
+}
+
+package "Validation errors" as P_VAL {
+  class ValidationError <<external: Pydantic>> {
+    type
+    loc
+    msg
+    input
+    ctx
+  }
+  class ErrorTemplate {
+    error type
+    template
+    plural template
+    count key
+  }
+}
+
+' Locale resolution
+QueryParamSource -up-|> LocaleSource
+CookieSource -up-|> LocaleSource
+AcceptLanguageSource -up-|> LocaleSource
+PathPrefixSource -up-|> LocaleSource
+CustomSource -up-|> LocaleSource
+LocaleSource ..> LanguagePreference : yields
+Negotiation ..> LocaleSource : asks in order
+Negotiation ..> SupportedLocales : matches against
+Negotiation ..> RequestLocale : creates
+SupportedLocales "1" o-- "1..*" Locale
+RequestLocale --> "1" Locale
+
+' Translating
+RequestLocale --> "1" Translator : active
+LazyText ..> Translator : rendered by\nthe active one
+LazyText --> "1" Message
+
+' Catalogs
+Translator "1" --> "1..*" FallbackChain : one per domain
+FallbackChain "1" o-- "1..*" Catalog
+Catalog "*" --> "1" Domain
+Catalog --> "1" PluralRule
+Catalog "1" *-- "*" CatalogEntry
+CatalogEntry "*" --> "1" Message
+
+' Validation errors
+ValidationError ..> ErrorTemplate : matched by type
+ErrorTemplate --> "1" Message : context =\nerror type
+
+P_RES -[hidden]down- P_TR
+P_TR -[hidden]down- P_CAT
+@enduml

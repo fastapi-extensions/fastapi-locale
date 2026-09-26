@@ -1,0 +1,81 @@
+site_name: fastapi-locale
+site_description: Internationalization for FastAPI with gettext catalogs
+repo_url: https://github.com/fastapi-extensions/fastapi-locale
+repo_name: fastapi-extensions/fastapi-locale
+edit_uri: edit/main/docs/
+strict: true
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+exclude_docs: |
+  diagrams/*.puml
+  diagrams/include/
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            show_signature_annotations: true
+            separate_signature: true
+
+nav:
+  - Home: index.md
+  - User guide:
+      - Getting started: guide/getting-started.md
+      - Translating messages: guide/translating.md
+      - Choosing the locale: guide/locale-resolution.md
+      - Validation errors: guide/validation-errors.md
+      - Testing: guide/testing.md
+      - Command line tool: guide/command-line.md
+  - API reference: reference.md
+  - Project documents:
+      - Overview: project-documents.md
+      - Existing libraries: research/existing-libraries.md
+      - Requirements: requirements/software-requirements-specification.md
+      - Use case model: modeling/use-case-model.md
+      - Domain model: modeling/domain-model.md
+      - Architecture: architecture/software-architecture.md
+      - Decisions:
+          - Index: adr/README.md
+          - ADR-0001: adr/0001-record-architecture-decisions.md
+          - ADR-0002: adr/0002-gettext-catalogs-through-babel.md
+          - ADR-0003: adr/0003-request-locale-in-a-context-variable.md
+          - ADR-0004: adr/0004-middleware-resolves-dependencies-refine.md
+          - ADR-0005: adr/0005-lazy-text-type.md
+          - ADR-0006: adr/0006-validation-messages-keyed-on-error-type.md
+          - ADR-0007: adr/0007-named-placeholder-formatting.md
+          - ADR-0008: adr/0008-load-catalogs-at-setup.md
+          - ADR-0009: adr/0009-localized-openapi.md
+          - ADR-0010: adr/0010-toolchain.md
+      - Detailed design: design/detailed-design.md
+      - Test plan: testing/test-plan.md
+      - Development guide: development/development-guide.md

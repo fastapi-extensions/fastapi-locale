@@ -1,0 +1,27 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: pt\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Hello"
+msgstr "Olá"
+
+msgid "Hello {name}"
+msgstr "Olá {name}"
+
+msgid "{n} file"
+msgid_plural "{n} files"
+msgstr[0] "{n} arquivo"
+msgstr[1] "{n} arquivos"
+
+msgctxt "month"
+msgid "May"
+msgstr "Maio"
+
+msgctxt "verb"
+msgid "May"
+msgstr "Pode"
+
+msgid "Goodbye"
+msgstr "Adeus"

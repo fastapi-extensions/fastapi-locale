@@ -1,0 +1,70 @@
+@startuml module-dependencies
+!include include/style.iuml
+title Module dependencies and layering rule
+skinparam ranksep 45
+
+package "Public entry point" {
+  component "~__init~__" as Init
+}
+
+package "Integration layer" as L2 {
+  [localization] as Loc
+  [middleware] as Mw
+  [sources] as Src
+  [handlers] as Hdl
+  [dependencies] as Dep
+  [lazy] as Lazy
+  [testing] as Tst
+  [config] as Cfg
+}
+
+package "Core layer (no FastAPI, Starlette or Pydantic imports)" as L1 {
+  [_context] as Ctx
+  [_translator] as Tr
+  [_catalog] as Cat
+  [_errors_catalog] as Err
+  [_formatting] as Fmt
+  [_accept_language] as Al
+  [_locale] as Lc
+  [exceptions] as Exc
+}
+
+package "Tooling" {
+  [cli] as Cli
+}
+
+Init --> Loc
+Init --> Lazy
+Init --> Dep
+Loc --> Mw
+Loc --> Hdl
+Loc --> Cat
+Loc --> Cfg
+Mw --> Src
+Mw --> Ctx
+Src --> Al
+Hdl --> Ctx
+Hdl --> Err
+Dep --> Ctx
+Lazy --> Ctx
+Tst --> Loc
+Tst --> Ctx
+Ctx --> Tr
+Tr --> Cat
+Tr --> Fmt
+Cat --> Lc
+Al --> Lc
+Cfg --> Lc
+Cfg --> Src
+Cli --> Err
+Cli --> Lc
+Cli --> Fmt
+
+note bottom of L1
+  Checked in CI with import-linter:
+  1. Core modules never import fastapi, starlette or pydantic.
+  2. Core never imports the integration layer.
+  3. No import cycles.
+  Every module may import exceptions.
+end note
+@enduml

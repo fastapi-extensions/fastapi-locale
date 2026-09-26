@@ -1,0 +1,513 @@
+# Hindi translations for fastapi-locale.
+# Copyright (C) 2026 fastapi-locale contributors
+# This file is distributed under the same license as the fastapi-locale project.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fastapi-locale VERSION\n"
+"Report-Msgid-Bugs-To: https://github.com/fastapi-extensions/fastapi-locale/issues\n"
+"Last-Translator: fastapi-locale contributors\n"
+"Language: hi\n"
+"Language-Team: hi <https://github.com/fastapi-extensions/fastapi-locale>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgctxt "arguments_type"
+msgid "Arguments must be a tuple, list or a dictionary"
+msgstr "आर्ग्युमेंट tuple, सूची या dictionary होने चाहिए"
+
+#, python-brace-format
+msgctxt "assertion_error"
+msgid "Assertion failed, {error}"
+msgstr "assertion विफल, {error}"
+
+#, python-brace-format
+msgctxt "needs_python_object"
+msgid "Cannot check `{method_name}` when validating from json, use a JsonOrPython validator instead"
+msgstr ""
+"JSON से वैलिडेशन करते समय `{method_name}` की जाँच नहीं हो सकती, इसके बजाय JsonOrPython वैलिडेटर "
+"का उपयोग करें"
+
+#, python-brace-format
+msgctxt "bytes_invalid_encoding"
+msgid "Data should be valid {encoding}: {encoding_error}"
+msgstr "डेटा मान्य {encoding} होना चाहिए: {encoding_error}"
+
+#, python-brace-format
+msgctxt "bytes_too_short"
+msgid "Data should have at least {min_length} byte"
+msgid_plural "Data should have at least {min_length} bytes"
+msgstr[0] "डेटा में कम से कम {min_length} बाइट होना चाहिए"
+msgstr[1] "डेटा में कम से कम {min_length} बाइट होने चाहिए"
+
+#, python-brace-format
+msgctxt "bytes_too_long"
+msgid "Data should have at most {max_length} byte"
+msgid_plural "Data should have at most {max_length} bytes"
+msgstr[0] "डेटा में अधिकतम {max_length} बाइट होना चाहिए"
+msgstr[1] "डेटा में अधिकतम {max_length} बाइट होने चाहिए"
+
+msgctxt "date_future"
+msgid "Date should be in the future"
+msgstr "तारीख भविष्य की होनी चाहिए"
+
+msgctxt "date_past"
+msgid "Date should be in the past"
+msgstr "तारीख अतीत की होनी चाहिए"
+
+msgctxt "date_from_datetime_inexact"
+msgid "Datetimes provided to dates should have zero time - e.g. be exact dates"
+msgstr "तारीख के रूप में दिए गए तारीख-समय में समय शून्य होना चाहिए, यानी वे सटीक तारीखें हों"
+
+msgctxt "decimal_type"
+msgid "Decimal input should be an integer, float, string or Decimal object"
+msgstr "Decimal इनपुट पूर्णांक, float, string या Decimal ऑब्जेक्ट होना चाहिए"
+
+#, python-brace-format
+msgctxt "decimal_max_places"
+msgid "Decimal input should have no more than {decimal_places} decimal place"
+msgid_plural "Decimal input should have no more than {decimal_places} decimal places"
+msgstr[0] "Decimal इनपुट में {decimal_places} से अधिक दशमलव स्थान नहीं होना चाहिए"
+msgstr[1] "Decimal इनपुट में {decimal_places} से अधिक दशमलव स्थान नहीं होने चाहिए"
+
+#, python-brace-format
+msgctxt "decimal_max_digits"
+msgid "Decimal input should have no more than {max_digits} digit in total"
+msgid_plural "Decimal input should have no more than {max_digits} digits in total"
+msgstr[0] "Decimal इनपुट में कुल {max_digits} से अधिक अंक नहीं होना चाहिए"
+msgstr[1] "Decimal इनपुट में कुल {max_digits} से अधिक अंक नहीं होने चाहिए"
+
+#, python-brace-format
+msgctxt "decimal_whole_digits"
+msgid "Decimal input should have no more than {whole_digits} digit before the decimal point"
+msgid_plural "Decimal input should have no more than {whole_digits} digits before the decimal point"
+msgstr[0] "Decimal इनपुट में दशमलव बिंदु से पहले {whole_digits} से अधिक अंक नहीं होना चाहिए"
+msgstr[1] "Decimal इनपुट में दशमलव बिंदु से पहले {whole_digits} से अधिक अंक नहीं होने चाहिए"
+
+#, python-brace-format
+msgctxt "get_attribute_error"
+msgid "Error extracting attribute: {error}"
+msgstr "एट्रिब्यूट निकालने में त्रुटि: {error}"
+
+#, python-brace-format
+msgctxt "iteration_error"
+msgid "Error iterating over object, error: {error}"
+msgstr "ऑब्जेक्ट पर इटरेट करते समय त्रुटि, त्रुटि: {error}"
+
+msgctxt "extra_forbidden"
+msgid "Extra inputs are not permitted"
+msgstr "अतिरिक्त इनपुट की अनुमति नहीं है"
+
+msgctxt "frozen_field"
+msgid "Field is frozen"
+msgstr "फ़ील्ड बदला नहीं जा सकता"
+
+msgctxt "missing"
+msgid "Field required"
+msgstr "फ़ील्ड आवश्यक है"
+
+msgctxt "multiple_argument_values"
+msgid "Got multiple values for argument"
+msgstr "आर्ग्युमेंट के लिए एक से अधिक मान मिले"
+
+msgctxt "none_required"
+msgid "Input should be None"
+msgstr "इनपुट None होना चाहिए"
+
+#, python-brace-format
+msgctxt "dataclass_type"
+msgid "Input should be a dictionary or an instance of {class_name}"
+msgstr "इनपुट एक dictionary या {class_name} का इंस्टेंस होना चाहिए"
+
+msgctxt "finite_number"
+msgid "Input should be a finite number"
+msgstr "इनपुट एक सीमित संख्या होनी चाहिए"
+
+#, python-brace-format
+msgctxt "multiple_of"
+msgid "Input should be a multiple of {multiple_of}"
+msgstr "इनपुट {multiple_of} का गुणज होना चाहिए"
+
+msgctxt "string_sub_type"
+msgid "Input should be a string, not an instance of a subclass of str"
+msgstr "इनपुट एक string होना चाहिए, str के किसी सबक्लास का इंस्टेंस नहीं"
+
+#, python-brace-format
+msgctxt "is_subclass_of"
+msgid "Input should be a subclass of {class}"
+msgstr "इनपुट {class} का सबक्लास होना चाहिए"
+
+#, python-brace-format
+msgctxt "url_parsing"
+msgid "Input should be a valid URL, {error}"
+msgstr "इनपुट एक मान्य URL होना चाहिए, {error}"
+
+#, python-brace-format
+msgctxt "uuid_parsing"
+msgid "Input should be a valid UUID, {error}"
+msgstr "इनपुट एक मान्य UUID होना चाहिए, {error}"
+
+msgctxt "bool_type"
+msgid "Input should be a valid boolean"
+msgstr "इनपुट एक मान्य boolean होना चाहिए"
+
+msgctxt "bool_parsing"
+msgid "Input should be a valid boolean, unable to interpret input"
+msgstr "इनपुट एक मान्य boolean होना चाहिए, इनपुट को समझा नहीं जा सका"
+
+msgctxt "bytes_type"
+msgid "Input should be a valid bytes"
+msgstr "इनपुट मान्य bytes होना चाहिए"
+
+msgctxt "complex_str_parsing"
+msgid ""
+"Input should be a valid complex string following the rules at "
+"https://docs.python.org/3/library/functions.html#complex"
+msgstr ""
+"इनपुट https://docs.python.org/3/library/functions.html#complex के नियमों के अनुसार मान्य complex "
+"string होना चाहिए"
+
+msgctxt "date_type"
+msgid "Input should be a valid date"
+msgstr "इनपुट एक मान्य तारीख होनी चाहिए"
+
+#, python-brace-format
+msgctxt "date_parsing"
+msgid "Input should be a valid date in the format YYYY-MM-DD, {error}"
+msgstr "इनपुट YYYY-MM-DD प्रारूप में एक मान्य तारीख होनी चाहिए, {error}"
+
+#, python-brace-format
+msgctxt "date_from_datetime_parsing"
+msgid "Input should be a valid date or datetime, {error}"
+msgstr "इनपुट एक मान्य तारीख या तारीख-समय होना चाहिए, {error}"
+
+msgctxt "datetime_type"
+msgid "Input should be a valid datetime"
+msgstr "इनपुट एक मान्य तारीख-समय होना चाहिए"
+
+#, python-brace-format
+msgctxt "datetime_from_date_parsing"
+msgid "Input should be a valid datetime or date, {error}"
+msgstr "इनपुट एक मान्य तारीख-समय या तारीख होना चाहिए, {error}"
+
+#, python-brace-format
+msgctxt "datetime_parsing"
+msgid "Input should be a valid datetime, {error}"
+msgstr "इनपुट एक मान्य तारीख-समय होना चाहिए, {error}"
+
+msgctxt "decimal_parsing"
+msgid "Input should be a valid decimal"
+msgstr "इनपुट एक मान्य दशमलव संख्या होनी चाहिए"
+
+msgctxt "dict_type"
+msgid "Input should be a valid dictionary"
+msgstr "इनपुट एक मान्य dictionary होना चाहिए"
+
+#, python-brace-format
+msgctxt "model_type"
+msgid "Input should be a valid dictionary or instance of {class_name}"
+msgstr "इनपुट एक मान्य dictionary या {class_name} का इंस्टेंस होना चाहिए"
+
+msgctxt "model_attributes_type"
+msgid "Input should be a valid dictionary or object to extract fields from"
+msgstr "इनपुट एक मान्य dictionary या ऐसा ऑब्जेक्ट होना चाहिए जिससे फ़ील्ड निकाले जा सकें"
+
+msgctxt "frozen_set_type"
+msgid "Input should be a valid frozenset"
+msgstr "इनपुट एक मान्य frozenset होना चाहिए"
+
+msgctxt "int_type"
+msgid "Input should be a valid integer"
+msgstr "इनपुट एक मान्य पूर्णांक होना चाहिए"
+
+msgctxt "int_from_float"
+msgid "Input should be a valid integer, got a number with a fractional part"
+msgstr "इनपुट एक मान्य पूर्णांक होना चाहिए, दशमलव भाग वाली संख्या मिली"
+
+msgctxt "int_parsing"
+msgid "Input should be a valid integer, unable to parse string as an integer"
+msgstr "इनपुट एक मान्य पूर्णांक होना चाहिए, string को पूर्णांक में नहीं बदला जा सका"
+
+msgctxt "list_type"
+msgid "Input should be a valid list"
+msgstr "इनपुट एक मान्य सूची होनी चाहिए"
+
+#, python-brace-format
+msgctxt "mapping_type"
+msgid "Input should be a valid mapping, error: {error}"
+msgstr "इनपुट एक मान्य mapping होना चाहिए, त्रुटि: {error}"
+
+msgctxt "float_type"
+msgid "Input should be a valid number"
+msgstr "इनपुट एक मान्य संख्या होनी चाहिए"
+
+msgctxt "float_parsing"
+msgid "Input should be a valid number, unable to parse string as a number"
+msgstr "इनपुट एक मान्य संख्या होनी चाहिए, string को संख्या में नहीं बदला जा सका"
+
+msgctxt "complex_type"
+msgid ""
+"Input should be a valid python complex object, a number, or a valid complex string following the "
+"rules at https://docs.python.org/3/library/functions.html#complex"
+msgstr ""
+"इनपुट एक मान्य Python complex ऑब्जेक्ट, संख्या, या "
+"https://docs.python.org/3/library/functions.html#complex के नियमों के अनुसार मान्य complex string"
+" होना चाहिए"
+
+msgctxt "set_type"
+msgid "Input should be a valid set"
+msgstr "इनपुट एक मान्य set होना चाहिए"
+
+msgctxt "string_type"
+msgid "Input should be a valid string"
+msgstr "इनपुट एक मान्य string होना चाहिए"
+
+msgctxt "string_unicode"
+msgid "Input should be a valid string, unable to parse raw data as a unicode string"
+msgstr "इनपुट एक मान्य string होना चाहिए, डेटा को यूनिकोड string के रूप में नहीं पढ़ा जा सका"
+
+msgctxt "time_type"
+msgid "Input should be a valid time"
+msgstr "इनपुट एक मान्य समय होना चाहिए"
+
+msgctxt "time_delta_type"
+msgid "Input should be a valid timedelta"
+msgstr "इनपुट एक मान्य समय अंतराल होना चाहिए"
+
+#, python-brace-format
+msgctxt "time_delta_parsing"
+msgid "Input should be a valid timedelta, {error}"
+msgstr "इनपुट एक मान्य समय अंतराल होना चाहिए, {error}"
+
+msgctxt "tuple_type"
+msgid "Input should be a valid tuple"
+msgstr "इनपुट एक मान्य tuple होना चाहिए"
+
+#, python-brace-format
+msgctxt "dataclass_exact_type"
+msgid "Input should be an instance of {class_name}"
+msgstr "इनपुट {class_name} का इंस्टेंस होना चाहिए"
+
+#, python-brace-format
+msgctxt "is_instance_of"
+msgid "Input should be an instance of {class}"
+msgstr "इनपुट {class} का इंस्टेंस होना चाहिए"
+
+msgctxt "callable_type"
+msgid "Input should be callable"
+msgstr "इनपुट callable होना चाहिए"
+
+#, python-brace-format
+msgctxt "greater_than_equal"
+msgid "Input should be greater than or equal to {ge}"
+msgstr "इनपुट {ge} से बड़ा या उसके बराबर होना चाहिए"
+
+#, python-brace-format
+msgctxt "greater_than"
+msgid "Input should be greater than {gt}"
+msgstr "इनपुट {gt} से बड़ा होना चाहिए"
+
+#, python-brace-format
+msgctxt "time_parsing"
+msgid "Input should be in a valid time format, {error}"
+msgstr "इनपुट मान्य समय प्रारूप में होना चाहिए, {error}"
+
+msgctxt "datetime_future"
+msgid "Input should be in the future"
+msgstr "इनपुट भविष्य का होना चाहिए"
+
+msgctxt "datetime_past"
+msgid "Input should be in the past"
+msgstr "इनपुट अतीत का होना चाहिए"
+
+msgctxt "iterable_type"
+msgid "Input should be iterable"
+msgstr "इनपुट iterable होना चाहिए"
+
+#, python-brace-format
+msgctxt "less_than_equal"
+msgid "Input should be less than or equal to {le}"
+msgstr "इनपुट {le} से छोटा या उसके बराबर होना चाहिए"
+
+#, python-brace-format
+msgctxt "less_than"
+msgid "Input should be less than {lt}"
+msgstr "इनपुट {lt} से छोटा होना चाहिए"
+
+msgctxt "missing_sentinel_error"
+msgid "Input should be the 'MISSING' sentinel"
+msgstr "इनपुट 'MISSING' sentinel होना चाहिए"
+
+#, python-brace-format
+msgctxt "enum"
+msgid "Input should be {expected}"
+msgstr "इनपुट {expected} होना चाहिए"
+
+#, python-brace-format
+msgctxt "literal_error"
+msgid "Input should be {expected}"
+msgstr "इनपुट {expected} होना चाहिए"
+
+msgctxt "timezone_aware"
+msgid "Input should have timezone info"
+msgstr "इनपुट में टाइमज़ोन जानकारी होनी चाहिए"
+
+msgctxt "timezone_naive"
+msgid "Input should not have timezone info"
+msgstr "इनपुट में टाइमज़ोन जानकारी नहीं होनी चाहिए"
+
+#, python-brace-format
+msgctxt "union_tag_invalid"
+msgid ""
+"Input tag '{tag}' found using {discriminator} does not match any of the expected tags: "
+"{expected_tags}"
+msgstr "{discriminator} से मिला टैग '{tag}' किसी भी अपेक्षित टैग से मेल नहीं खाता: {expected_tags}"
+
+#, python-brace-format
+msgctxt "url_syntax_violation"
+msgid "Input violated strict URL syntax rules, {error}"
+msgstr "इनपुट ने URL सिंटैक्स के सख्त नियमों का उल्लंघन किया, {error}"
+
+msgctxt "frozen_instance"
+msgid "Instance is frozen"
+msgstr "इंस्टेंस बदला नहीं जा सकता"
+
+#, python-brace-format
+msgctxt "json_invalid"
+msgid "Invalid JSON: {error}"
+msgstr "अमान्य JSON: {error}"
+
+#, python-brace-format
+msgctxt "datetime_object_invalid"
+msgid "Invalid datetime object, got {error}"
+msgstr "अमान्य datetime ऑब्जेक्ट, मिला {error}"
+
+msgctxt "json_type"
+msgid "JSON input should be string, bytes or bytearray"
+msgstr "JSON इनपुट string, bytes या bytearray होना चाहिए"
+
+msgctxt "invalid_key"
+msgid "Keys should be strings"
+msgstr "कुंजियाँ string होनी चाहिए"
+
+msgctxt "missing_argument"
+msgid "Missing required argument"
+msgstr "आवश्यक आर्ग्युमेंट नहीं दिया गया"
+
+msgctxt "missing_keyword_only_argument"
+msgid "Missing required keyword only argument"
+msgstr "आवश्यक keyword-only आर्ग्युमेंट नहीं दिया गया"
+
+msgctxt "missing_positional_only_argument"
+msgid "Missing required positional only argument"
+msgstr "आवश्यक positional-only आर्ग्युमेंट नहीं दिया गया"
+
+#, python-brace-format
+msgctxt "no_such_attribute"
+msgid "Object has no attribute '{attribute}'"
+msgstr "ऑब्जेक्ट में '{attribute}' एट्रिब्यूट नहीं है"
+
+msgctxt "recursion_loop"
+msgid "Recursion error - cyclic reference detected"
+msgstr "रिकर्शन त्रुटि: चक्रीय संदर्भ मिला"
+
+msgctxt "set_item_not_hashable"
+msgid "Set items should be hashable"
+msgstr "set के आइटम hashable होने चाहिए"
+
+msgctxt "string_not_ascii"
+msgid "String should contain only ASCII characters"
+msgstr "string में केवल ASCII अक्षर होने चाहिए"
+
+#, python-brace-format
+msgctxt "string_too_short"
+msgid "String should have at least {min_length} character"
+msgid_plural "String should have at least {min_length} characters"
+msgstr[0] "string में कम से कम {min_length} अक्षर होना चाहिए"
+msgstr[1] "string में कम से कम {min_length} अक्षर होने चाहिए"
+
+#, python-brace-format
+msgctxt "string_too_long"
+msgid "String should have at most {max_length} character"
+msgid_plural "String should have at most {max_length} characters"
+msgstr[0] "string में अधिकतम {max_length} अक्षर होना चाहिए"
+msgstr[1] "string में अधिकतम {max_length} अक्षर होने चाहिए"
+
+#, python-brace-format
+msgctxt "string_pattern_mismatch"
+msgid "String should match pattern '{pattern}'"
+msgstr "string पैटर्न '{pattern}' से मेल खानी चाहिए"
+
+msgctxt "default_factory_not_called"
+msgid "The default factory uses validated data, but at least one validation error occurred"
+msgstr "डिफ़ॉल्ट फ़ैक्टरी वैलिडेट किए गए डेटा का उपयोग करती है, लेकिन कम से कम एक वैलिडेशन त्रुटि हुई"
+
+#, python-brace-format
+msgctxt "timezone_offset"
+msgid "Timezone offset of {tz_expected} required, got {tz_actual}"
+msgstr "टाइमज़ोन ऑफ़सेट {tz_expected} आवश्यक है, मिला {tz_actual}"
+
+msgctxt "url_type"
+msgid "URL input should be a string or URL"
+msgstr "URL इनपुट string या URL होना चाहिए"
+
+#, python-brace-format
+msgctxt "url_scheme"
+msgid "URL scheme should be {expected_schemes}"
+msgstr "URL स्कीम {expected_schemes} होनी चाहिए"
+
+#, python-brace-format
+msgctxt "url_too_long"
+msgid "URL should have at most {max_length} character"
+msgid_plural "URL should have at most {max_length} characters"
+msgstr[0] "URL में अधिकतम {max_length} अक्षर होना चाहिए"
+msgstr[1] "URL में अधिकतम {max_length} अक्षर होने चाहिए"
+
+msgctxt "uuid_type"
+msgid "UUID input should be a string, bytes or UUID object"
+msgstr "UUID इनपुट string, bytes या UUID ऑब्जेक्ट होना चाहिए"
+
+#, python-brace-format
+msgctxt "uuid_version"
+msgid "UUID version {expected_version} expected"
+msgstr "UUID संस्करण {expected_version} अपेक्षित है"
+
+#, python-brace-format
+msgctxt "union_tag_not_found"
+msgid "Unable to extract tag using discriminator {discriminator}"
+msgstr "डिस्क्रिमिनेटर {discriminator} से टैग नहीं निकाला जा सका"
+
+msgctxt "int_parsing_size"
+msgid "Unable to parse input string as an integer, exceeded maximum size"
+msgstr "string को पूर्णांक में नहीं बदला जा सका, अधिकतम आकार पार हो गया"
+
+msgctxt "unexpected_keyword_argument"
+msgid "Unexpected keyword argument"
+msgstr "अनपेक्षित कीवर्ड आर्ग्युमेंट"
+
+msgctxt "unexpected_positional_argument"
+msgid "Unexpected positional argument"
+msgstr "अनपेक्षित positional आर्ग्युमेंट"
+
+#, python-brace-format
+msgctxt "value_error"
+msgid "Value error, {error}"
+msgstr "मान त्रुटि, {error}"
+
+#, python-brace-format
+msgctxt "too_short"
+msgid "{field_type} should have at least {min_length} item after validation, not {actual_length}"
+msgid_plural "{field_type} should have at least {min_length} items after validation, not {actual_length}"
+msgstr[0] "वैलिडेशन के बाद {field_type} में कम से कम {min_length} आइटम होना चाहिए, {actual_length} नहीं"
+msgstr[1] "वैलिडेशन के बाद {field_type} में कम से कम {min_length} आइटम होने चाहिए, {actual_length} नहीं"
+
+#, python-brace-format
+msgctxt "too_long"
+msgid "{field_type} should have at most {max_length} item after validation, not {actual_length}"
+msgid_plural "{field_type} should have at most {max_length} items after validation, not {actual_length}"
+msgstr[0] "वैलिडेशन के बाद {field_type} में अधिकतम {max_length} आइटम होना चाहिए, {actual_length} नहीं"
+msgstr[1] "वैलिडेशन के बाद {field_type} में अधिकतम {max_length} आइटम होने चाहिए, {actual_length} नहीं"
+

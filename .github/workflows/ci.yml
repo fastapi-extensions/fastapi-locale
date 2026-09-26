@@ -1,0 +1,124 @@
+# Continuous integration: static checks, the test pyramid across Python versions and platforms,
+# the lowest supported dependency versions, and the documentation.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 5 * * 1" # Mondays: catch breaking FastAPI or Pydantic releases early
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  UV_LOCKED: "1"
+
+jobs:
+  static:
+    name: Lint, types, layering, security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync
+      - run: make lint
+      - run: make type
+      - run: make layers
+      - run: make security
+      - name: Built-in error catalogs match the templates
+        run: uv run python scripts/sync_error_catalog.py --check
+      - name: Markdown
+        uses: DavidAnson/markdownlint-cli2-action@v20
+        with:
+          globs: "**/*.md"
+
+  tests:
+    name: Tests / Python ${{ matrix.python }}
+    needs: static
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --python ${{ matrix.python }}
+      - name: Unit, integration and end-to-end tests with coverage
+        run: uv run --python ${{ matrix.python }} pytest --cov --cov-report=term-missing --cov-report=xml
+      - if: matrix.python == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.xml
+          retention-days: 7
+
+  lowest:
+    name: Lowest supported dependencies
+    needs: static
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --python 3.11
+      # Keep the locked test tools; downgrade only the runtime dependencies to their lower bounds.
+      - run: uv pip install "fastapi==0.115.0" "pydantic==2.7.0" "babel==2.12.1"
+      # Old Starlette with current AnyIO emits deprecation warnings that are not ours to fix.
+      - run: uv run --no-sync pytest -m "unit or integration" -W "ignore::DeprecationWarning"
+
+  platforms:
+    name: Tests / ${{ matrix.os }}
+    needs: static
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --python 3.12
+      - run: uv run pytest -m "unit or integration"
+
+  benchmark:
+    name: Performance budget
+    needs: static
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync
+      - run: make bench
+
+  docs:
+    name: Documentation and diagrams
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync
+      - run: make docs
+      - name: Rendered diagrams match their PlantUML sources
+        run: |
+          scripts/render-diagrams.sh
+          git diff --exit-code -- docs/diagrams

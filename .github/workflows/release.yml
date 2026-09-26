@@ -1,0 +1,105 @@
+# Release on a version tag (v1.2.3, or v1.2.3rc1 for a pre-release on TestPyPI).
+# Publishing uses PyPI trusted publishing (OIDC), so no API token is stored anywhere.
+name: Release
+
+on:
+  push:
+    tags: ["v[0-9]*.[0-9]*.[0-9]*"]
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate the tag
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      prerelease: ${{ steps.meta.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: meta
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [[ "$version" =~ (a|b|rc)[0-9]+$ ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Tag matches pyproject.toml
+        run: |
+          project_version="$(grep -m1 '^version = ' pyproject.toml | cut -d'"' -f2)"
+          test "$project_version" = "${{ steps.meta.outputs.version }}" \
+            || { echo "pyproject.toml has $project_version"; exit 1; }
+      - name: CHANGELOG has an entry
+        run: grep -q "^## \[${{ steps.meta.outputs.version }}\]" CHANGELOG.md
+
+  build:
+    name: Build and verify
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - run: uv run pytest
+      - run: uv build
+      - name: Wheel contains the type marker and the built-in catalogs
+        run: |
+          unzip -l dist/*.whl > contents.txt
+          grep -q "fastapi_locale/py.typed" contents.txt
+          grep -q "fastapi_locale/locales/de/LC_MESSAGES/fastapi_locale.po" contents.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    name: Publish
+    needs: [validate, build]
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ needs.validate.outputs.prerelease == 'true' && 'testpypi' || 'pypi' }}
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: >-
+            ${{ needs.validate.outputs.prerelease == 'true'
+                && 'https://test.pypi.org/legacy/'
+                || 'https://upload.pypi.org/legacy/' }}
+
+  github-release:
+    name: GitHub release
+    needs: [validate, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Release notes from CHANGELOG
+        run: |
+          awk -v v="${{ needs.validate.outputs.version }}" '
+            $0 ~ "^## \\[" v "\\]" { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > notes.md
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* --notes-file notes.md \
+            ${{ needs.validate.outputs.prerelease == 'true' && '--prerelease' || '' }}

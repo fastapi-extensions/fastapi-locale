@@ -1,0 +1,29 @@
+@startuml state-request-locale
+!include include/style.iuml
+title Request locale lifecycle
+hide empty description
+
+[*] --> Resolving : request or WebSocket\nconnection received
+
+state Resolving : sources asked in configured order
+state Active {
+  state Resolved : a source matched\na supported locale
+  state Defaulted : no source matched,\ndefault locale used
+  state Overridden : changed by set_locale(),\nfor example from the user's profile
+  Resolved --> Overridden : set_locale()
+  Defaulted --> Overridden : set_locale()
+  Overridden --> Overridden : set_locale()
+}
+Resolving --> Resolved
+Resolving --> Defaulted
+Active --> Committed : response start sent\n(Content-Language written)
+state Committed : translations still follow set_locale()\nbut headers can no longer change
+Committed --> Closed : response body sent and\nbackground tasks finished
+Closed --> [*] : context variable reset
+
+note right of Active
+  use_locale() shadows the request locale
+  inside a block and restores it on exit.
+  It never changes Content-Language.
+end note
+@enduml

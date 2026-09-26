@@ -1,0 +1,46 @@
+@startuml sequence-request
+!include include/style.iuml
+title Handling a request
+autonumber
+
+actor "API client" as Client
+participant "ASGI server" as Server
+participant "LocaleMiddleware" as MW
+participant "Locale sources" as Src
+participant "Negotiation" as Neg
+participant "Locale context\n(ContextVar)" as Ctx
+participant "FastAPI routing\nand dependencies" as Router
+participant "Route handler" as Route
+participant "Translator" as Tr
+
+Client -> Server : GET /items/42\nAccept-Language: hi-IN,hi;q=0.9,en;q=0.5
+Server -> MW : __call__(scope, receive, send)
+activate MW
+loop each source in configured order, until a match
+  MW -> Src : candidates(connection)
+  Src --> MW : ["hi-IN", "hi", "en"]
+  MW -> Neg : lookup(candidates, supported)
+  Neg --> MW : hi
+end
+MW -> Ctx : set(RequestLocale(hi, decided_by="accept-language"))
+Ctx --> MW : token
+MW -> Router : app(scope, receive, send_with_headers)
+activate Router
+Router -> Route : items(translator: TranslatorDep)
+activate Route
+Route -> Ctx : get_translator()
+Ctx --> Route : Translator(hi)
+Route -> Tr : gettext("Item {id} found", id=42)
+Tr --> Route : translated text
+Route --> Router : response model
+deactivate Route
+Router -> MW : send(http.response.start)
+MW -> MW : add Content-Language: hi\nmerge Vary: Accept-Language, Cookie
+MW -> Server : send(http.response.start)
+Router -> MW : send(http.response.body)
+MW -> Server : send(http.response.body)
+deactivate Router
+MW -> Ctx : reset(token)
+deactivate MW
+Server --> Client : 200 OK, Content-Language: hi
+@enduml

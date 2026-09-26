@@ -1,0 +1,31 @@
+@startuml activity-locale-resolution
+!include include/style.iuml
+title Locale resolution
+
+start
+if (Locale forced by a test override?) then (yes)
+  :use the forced locale;
+  stop
+endif
+while (more sources in configured order?) is (yes)
+  :ask the source for candidate language ranges;
+  while (more candidates?) is (yes)
+    if (candidate is a valid BCP 47 tag?) then (no)
+      :skip it;
+    else (yes)
+      :normalize (pt_br becomes pt-BR);
+      repeat
+        if (tag is a supported locale?) then (yes)
+          :record which source decided;
+          :return the locale;
+          stop
+        endif
+        :drop the last subtag\n(hi-Latn-IN, hi-Latn, hi);
+      repeat while (subtags left?) is (yes)
+    endif
+  endwhile (no)
+endwhile (no)
+:use the default locale;
+stop
+
+@enduml

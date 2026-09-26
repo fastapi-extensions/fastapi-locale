@@ -1,0 +1,33 @@
+@startuml activity-message-lookup
+!include include/style.iuml
+title Message lookup and formatting
+
+start
+:gettext(message, **params) is called;
+if (inside use_locale() block?) then (yes)
+  :use that block's translator;
+elseif (inside a request?) then (yes)
+  :use the request's translator;
+elseif (a process default Localization exists?) then (yes)
+  :use its default-locale translator;
+else (no)
+  :raise LocalizationNotConfiguredError;
+  stop
+endif
+:look up the message in the domain's fallback chain;
+note right
+  Chain for pt-BR:
+  pt-BR catalog, pt catalog,
+  default locale catalog, msgid
+end note
+:take the first translation found\n(or the msgid if none);
+if (params given or plural form?) then (yes)
+  :replace each {name} with its value;
+  if (a placeholder has no value?) then (yes)
+    :leave it as written;
+    :log a warning once per message and locale;
+  endif
+endif
+:return the text;
+stop
+@enduml

@@ -1,0 +1,220 @@
+# Dist build
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+# Project metadata
+[project]
+name = "fastapi-locale"
+version = "0.1.0.dev0"
+description = "Internationalization for FastAPI: gettext catalogs, per-request locales, lazy text and localized validation errors."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "fastapi-locale contributors" }]
+keywords = ["fastapi", "i18n", "l10n", "gettext", "babel", "localization", "internationalization", "pydantic"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: FastAPI",
+    "Framework :: Pydantic :: 2",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Internationalization",
+    "Topic :: Software Development :: Localization",
+    "Typing :: Typed",
+]
+dependencies = [
+    "fastapi>=0.115.0",
+    "pydantic>=2.7.0",
+    "babel>=2.12.0",
+]
+
+[project.scripts]
+fastapi-locale = "fastapi_locale.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/fastapi-extensions/fastapi-locale"
+Documentation = "https://fastapi-locale.readthedocs.io"
+Repository = "https://github.com/fastapi-extensions/fastapi-locale"
+"Bug Tracker" = "https://github.com/fastapi-extensions/fastapi-locale/issues"
+Changelog = "https://github.com/fastapi-extensions/fastapi-locale/blob/main/CHANGELOG.md"
+
+# Development dependencies (PEP 735); never published as extras.
+[dependency-groups]
+test = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "pytest-benchmark>=5.1",
+    "hypothesis>=6.120",
+    "httpx>=0.28",  # test client of older Starlette releases
+    "httpx2>=2.13",  # test client of current Starlette releases
+    "uvicorn>=0.32",
+]
+lint = [
+    "ruff>=0.15",
+    "mypy>=1.15",
+    "import-linter>=2.1",
+    "bandit[toml]>=1.8",
+    "pre-commit>=4.0",
+]
+docs = [
+    "mkdocs>=1.6,<2",  # MkDocs 2.0 drops the plugin system mkdocstrings needs
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.27",
+]
+dev = [
+    { include-group = "test" },
+    { include-group = "lint" },
+    { include-group = "docs" },
+]
+
+[tool.uv]
+default-groups = ["dev"]
+
+# Build
+[tool.hatch.build.targets.wheel]
+packages = ["src/fastapi_locale"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "docs", "examples", "CHANGELOG.md", "README.md", "LICENSE"]
+
+# Pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--tb=short", "--strict-markers", "--strict-config", "-q", "--benchmark-skip"]
+xfail_strict = true
+filterwarnings = ["error"]
+markers = [
+    "unit: fast tests of one module, no network",
+    "integration: the library inside a FastAPI app, called in process",
+    "e2e: a real Uvicorn process or the CLI as a subprocess",
+    "benchmark: performance budget checks",
+    "locale(tag): run the test body with this locale active",
+]
+
+# Coverage
+[tool.coverage.run]
+source = ["fastapi_locale"]
+branch = true
+# Also measure the CLI and Uvicorn processes started by the end-to-end tests.
+patch = ["subprocess"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 95
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "@overload",
+    "\\.\\.\\.$",
+]
+
+# Ruff
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F", "I", "B", "UP", "S", "C4", "SIM", "RUF", "PT", "PL", "N", "D",
+    "ANN", "TID", "TC", "PTH", "PIE", "RET", "ERA", "BLE", "G", "LOG", "T20",
+]
+ignore = [
+    "D105",    # magic methods are documented by the protocol they implement
+    "D107",    # __init__ is documented on the class
+    "D203",    # conflicts with D211
+    "D213",    # conflicts with D212
+    "PLR0913", # public API mirrors gettext signatures
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Messages stay on one line so they match the catalog entries exactly.
+"src/fastapi_locale/_errors_catalog.py" = ["E501"]
+# FastAPI reads route annotations at runtime, so test and example imports stay at module level.
+"tests/**" = ["S101", "S105", "S106", "S107", "D", "ANN", "PLR2004", "PLC0415", "S603", "TC"]
+"examples/**" = ["D", "T20", "TC"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+# Mypy
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+plugins = ["pydantic.mypy"]
+files = ["src", "tests"]
+
+[[tool.mypy.overrides]]
+module = ["babel.*"]
+ignore_missing_imports = true
+
+# Bandit
+[tool.bandit]
+exclude_dirs = ["tests", "examples"]
+
+# Import layering (docs/design/detailed-design.md, section 3)
+[tool.importlinter]
+root_package = "fastapi_locale"
+include_external_packages = true
+# Imports used only for type hints do not create runtime dependencies.
+exclude_type_checking_imports = true
+
+[[tool.importlinter.contracts]]
+name = "Core does not depend on web frameworks"
+type = "forbidden"
+source_modules = [
+    "fastapi_locale._locale",
+    "fastapi_locale._accept_language",
+    "fastapi_locale._catalog",
+    "fastapi_locale._translator",
+    "fastapi_locale._formatting",
+    "fastapi_locale._context",
+    "fastapi_locale._errors_catalog",
+    "fastapi_locale.exceptions",
+]
+forbidden_modules = ["fastapi", "starlette", "pydantic"]
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+name = "Core does not depend on the integration layer"
+type = "forbidden"
+source_modules = [
+    "fastapi_locale._locale",
+    "fastapi_locale._accept_language",
+    "fastapi_locale._catalog",
+    "fastapi_locale._translator",
+    "fastapi_locale._formatting",
+    "fastapi_locale._context",
+    "fastapi_locale._errors_catalog",
+    "fastapi_locale.exceptions",
+]
+forbidden_modules = [
+    "fastapi_locale.config",
+    "fastapi_locale.sources",
+    "fastapi_locale.middleware",
+    "fastapi_locale.lazy",
+    "fastapi_locale.handlers",
+    "fastapi_locale.dependencies",
+    "fastapi_locale.localization",
+    "fastapi_locale.testing",
+    "fastapi_locale.cli",
+]
+
+[[tool.importlinter.contracts]]
+name = "No import cycles between modules"
+type = "acyclic_siblings"
+ancestors = ["fastapi_locale"]

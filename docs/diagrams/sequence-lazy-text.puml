@@ -1,0 +1,40 @@
+@startuml sequence-lazy-text
+!include include/style.iuml
+title Lazy text rendered at serialization time
+autonumber
+
+participant "Module import" as Import
+participant "LazyText" as Lazy
+participant "Route handler" as Route
+participant "HTTP exception\nhandler" as Handler
+participant "jsonable_encoder" as Enc
+participant "Pydantic\nserializer" as Pyd
+participant "Locale context" as Ctx
+participant "Translator" as Tr
+
+== At import time, no request and no locale ==
+Import -> Lazy : NOT_FOUND = gettext_lazy("Item not found")
+Import -> Lazy : Field(default=gettext_lazy("Pending"))
+note right of Lazy : stores the message only,\nnothing is translated yet
+
+== During a request with locale de ==
+group HTTPException detail
+  Route -> Handler : raise HTTPException(404, detail=NOT_FOUND)
+  Handler -> Enc : jsonable_encoder({"detail": NOT_FOUND})
+  Enc -> Lazy : str(NOT_FOUND)
+  Lazy -> Ctx : get_translator()
+  Ctx --> Lazy : Translator(de)
+  Lazy -> Tr : gettext("Item not found")
+  Tr --> Lazy : "Artikel nicht gefunden"
+  Lazy --> Enc : str
+  Enc --> Handler : {"detail": "Artikel nicht gefunden"}
+end
+group Response model field
+  Route -> Pyd : serialize response (mode="json")
+  Pyd -> Lazy : plain serializer calls str()
+  Lazy -> Ctx : get_translator()
+  Lazy -> Tr : gettext("Pending")
+  Tr --> Lazy : "Ausstehend"
+  Lazy --> Pyd : str
+end
+@enduml

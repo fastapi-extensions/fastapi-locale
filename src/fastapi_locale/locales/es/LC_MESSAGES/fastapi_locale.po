@@ -1,0 +1,522 @@
+# Spanish translations for fastapi-locale.
+# Copyright (C) 2026 fastapi-locale contributors
+# This file is distributed under the same license as the fastapi-locale project.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fastapi-locale VERSION\n"
+"Report-Msgid-Bugs-To: https://github.com/fastapi-extensions/fastapi-locale/issues\n"
+"Last-Translator: fastapi-locale contributors\n"
+"Language: es\n"
+"Language-Team: es <https://github.com/fastapi-extensions/fastapi-locale>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgctxt "arguments_type"
+msgid "Arguments must be a tuple, list or a dictionary"
+msgstr "Los argumentos deben ser una tupla, una lista o un diccionario"
+
+#, python-brace-format
+msgctxt "assertion_error"
+msgid "Assertion failed, {error}"
+msgstr "Falló la aserción, {error}"
+
+#, python-brace-format
+msgctxt "needs_python_object"
+msgid "Cannot check `{method_name}` when validating from json, use a JsonOrPython validator instead"
+msgstr "No se puede comprobar `{method_name}` al validar desde JSON; use un validador JsonOrPython"
+
+#, python-brace-format
+msgctxt "bytes_invalid_encoding"
+msgid "Data should be valid {encoding}: {encoding_error}"
+msgstr "Los datos deben ser {encoding} válido: {encoding_error}"
+
+#, python-brace-format
+msgctxt "bytes_too_short"
+msgid "Data should have at least {min_length} byte"
+msgid_plural "Data should have at least {min_length} bytes"
+msgstr[0] "Los datos deben tener al menos {min_length} byte"
+msgstr[1] "Los datos deben tener al menos {min_length} bytes"
+
+#, python-brace-format
+msgctxt "bytes_too_long"
+msgid "Data should have at most {max_length} byte"
+msgid_plural "Data should have at most {max_length} bytes"
+msgstr[0] "Los datos deben tener como máximo {max_length} byte"
+msgstr[1] "Los datos deben tener como máximo {max_length} bytes"
+
+msgctxt "date_future"
+msgid "Date should be in the future"
+msgstr "La fecha debe estar en el futuro"
+
+msgctxt "date_past"
+msgid "Date should be in the past"
+msgstr "La fecha debe estar en el pasado"
+
+msgctxt "date_from_datetime_inexact"
+msgid "Datetimes provided to dates should have zero time - e.g. be exact dates"
+msgstr ""
+"Las fechas y horas proporcionadas como fecha deben tener la hora a cero, es decir, ser fechas "
+"exactas"
+
+msgctxt "decimal_type"
+msgid "Decimal input should be an integer, float, string or Decimal object"
+msgstr "La entrada decimal debe ser un entero, un número de coma flotante, una cadena o un objeto Decimal"
+
+#, python-brace-format
+msgctxt "decimal_max_places"
+msgid "Decimal input should have no more than {decimal_places} decimal place"
+msgid_plural "Decimal input should have no more than {decimal_places} decimal places"
+msgstr[0] "La entrada decimal no debe tener más de {decimal_places} decimal"
+msgstr[1] "La entrada decimal no debe tener más de {decimal_places} decimales"
+
+#, python-brace-format
+msgctxt "decimal_max_digits"
+msgid "Decimal input should have no more than {max_digits} digit in total"
+msgid_plural "Decimal input should have no more than {max_digits} digits in total"
+msgstr[0] "La entrada decimal no debe tener más de {max_digits} dígito en total"
+msgstr[1] "La entrada decimal no debe tener más de {max_digits} dígitos en total"
+
+#, python-brace-format
+msgctxt "decimal_whole_digits"
+msgid "Decimal input should have no more than {whole_digits} digit before the decimal point"
+msgid_plural "Decimal input should have no more than {whole_digits} digits before the decimal point"
+msgstr[0] "La entrada decimal no debe tener más de {whole_digits} dígito antes del separador decimal"
+msgstr[1] "La entrada decimal no debe tener más de {whole_digits} dígitos antes del separador decimal"
+
+#, python-brace-format
+msgctxt "get_attribute_error"
+msgid "Error extracting attribute: {error}"
+msgstr "Error al extraer el atributo: {error}"
+
+#, python-brace-format
+msgctxt "iteration_error"
+msgid "Error iterating over object, error: {error}"
+msgstr "Error al iterar sobre el objeto, error: {error}"
+
+msgctxt "extra_forbidden"
+msgid "Extra inputs are not permitted"
+msgstr "No se permiten entradas adicionales"
+
+msgctxt "frozen_field"
+msgid "Field is frozen"
+msgstr "El campo es inmutable"
+
+msgctxt "missing"
+msgid "Field required"
+msgstr "Campo obligatorio"
+
+msgctxt "multiple_argument_values"
+msgid "Got multiple values for argument"
+msgstr "Se recibieron varios valores para el argumento"
+
+msgctxt "none_required"
+msgid "Input should be None"
+msgstr "La entrada debe ser None"
+
+#, python-brace-format
+msgctxt "dataclass_type"
+msgid "Input should be a dictionary or an instance of {class_name}"
+msgstr "La entrada debe ser un diccionario o una instancia de {class_name}"
+
+msgctxt "finite_number"
+msgid "Input should be a finite number"
+msgstr "La entrada debe ser un número finito"
+
+#, python-brace-format
+msgctxt "multiple_of"
+msgid "Input should be a multiple of {multiple_of}"
+msgstr "La entrada debe ser un múltiplo de {multiple_of}"
+
+msgctxt "string_sub_type"
+msgid "Input should be a string, not an instance of a subclass of str"
+msgstr "La entrada debe ser una cadena, no una instancia de una subclase de str"
+
+#, python-brace-format
+msgctxt "is_subclass_of"
+msgid "Input should be a subclass of {class}"
+msgstr "La entrada debe ser una subclase de {class}"
+
+#, python-brace-format
+msgctxt "url_parsing"
+msgid "Input should be a valid URL, {error}"
+msgstr "La entrada debe ser una URL válida, {error}"
+
+#, python-brace-format
+msgctxt "uuid_parsing"
+msgid "Input should be a valid UUID, {error}"
+msgstr "La entrada debe ser un UUID válido, {error}"
+
+msgctxt "bool_type"
+msgid "Input should be a valid boolean"
+msgstr "La entrada debe ser un booleano válido"
+
+msgctxt "bool_parsing"
+msgid "Input should be a valid boolean, unable to interpret input"
+msgstr "La entrada debe ser un booleano válido; no se pudo interpretar la entrada"
+
+msgctxt "bytes_type"
+msgid "Input should be a valid bytes"
+msgstr "La entrada debe ser bytes válidos"
+
+msgctxt "complex_str_parsing"
+msgid ""
+"Input should be a valid complex string following the rules at "
+"https://docs.python.org/3/library/functions.html#complex"
+msgstr ""
+"La entrada debe ser una cadena compleja válida según las reglas de "
+"https://docs.python.org/3/library/functions.html#complex"
+
+msgctxt "date_type"
+msgid "Input should be a valid date"
+msgstr "La entrada debe ser una fecha válida"
+
+#, python-brace-format
+msgctxt "date_parsing"
+msgid "Input should be a valid date in the format YYYY-MM-DD, {error}"
+msgstr "La entrada debe ser una fecha válida con el formato AAAA-MM-DD, {error}"
+
+#, python-brace-format
+msgctxt "date_from_datetime_parsing"
+msgid "Input should be a valid date or datetime, {error}"
+msgstr "La entrada debe ser una fecha o fecha y hora válida, {error}"
+
+msgctxt "datetime_type"
+msgid "Input should be a valid datetime"
+msgstr "La entrada debe ser una fecha y hora válida"
+
+#, python-brace-format
+msgctxt "datetime_from_date_parsing"
+msgid "Input should be a valid datetime or date, {error}"
+msgstr "La entrada debe ser una fecha y hora o una fecha válida, {error}"
+
+#, python-brace-format
+msgctxt "datetime_parsing"
+msgid "Input should be a valid datetime, {error}"
+msgstr "La entrada debe ser una fecha y hora válida, {error}"
+
+msgctxt "decimal_parsing"
+msgid "Input should be a valid decimal"
+msgstr "La entrada debe ser un decimal válido"
+
+msgctxt "dict_type"
+msgid "Input should be a valid dictionary"
+msgstr "La entrada debe ser un diccionario válido"
+
+#, python-brace-format
+msgctxt "model_type"
+msgid "Input should be a valid dictionary or instance of {class_name}"
+msgstr "La entrada debe ser un diccionario válido o una instancia de {class_name}"
+
+msgctxt "model_attributes_type"
+msgid "Input should be a valid dictionary or object to extract fields from"
+msgstr "La entrada debe ser un diccionario válido o un objeto del que se puedan extraer campos"
+
+msgctxt "frozen_set_type"
+msgid "Input should be a valid frozenset"
+msgstr "La entrada debe ser un frozenset válido"
+
+msgctxt "int_type"
+msgid "Input should be a valid integer"
+msgstr "La entrada debe ser un número entero válido"
+
+msgctxt "int_from_float"
+msgid "Input should be a valid integer, got a number with a fractional part"
+msgstr "La entrada debe ser un número entero válido; se recibió un número con parte decimal"
+
+msgctxt "int_parsing"
+msgid "Input should be a valid integer, unable to parse string as an integer"
+msgstr "La entrada debe ser un número entero válido; no se pudo convertir la cadena en entero"
+
+msgctxt "list_type"
+msgid "Input should be a valid list"
+msgstr "La entrada debe ser una lista válida"
+
+#, python-brace-format
+msgctxt "mapping_type"
+msgid "Input should be a valid mapping, error: {error}"
+msgstr "La entrada debe ser un mapeo válido, error: {error}"
+
+msgctxt "float_type"
+msgid "Input should be a valid number"
+msgstr "La entrada debe ser un número válido"
+
+msgctxt "float_parsing"
+msgid "Input should be a valid number, unable to parse string as a number"
+msgstr "La entrada debe ser un número válido; no se pudo convertir la cadena en número"
+
+msgctxt "complex_type"
+msgid ""
+"Input should be a valid python complex object, a number, or a valid complex string following the "
+"rules at https://docs.python.org/3/library/functions.html#complex"
+msgstr ""
+"La entrada debe ser un objeto complejo de Python válido, un número o una cadena compleja válida "
+"según las reglas de https://docs.python.org/3/library/functions.html#complex"
+
+msgctxt "set_type"
+msgid "Input should be a valid set"
+msgstr "La entrada debe ser un conjunto válido"
+
+msgctxt "string_type"
+msgid "Input should be a valid string"
+msgstr "La entrada debe ser una cadena válida"
+
+msgctxt "string_unicode"
+msgid "Input should be a valid string, unable to parse raw data as a unicode string"
+msgstr "La entrada debe ser una cadena válida; no se pudieron leer los datos como cadena Unicode"
+
+msgctxt "time_type"
+msgid "Input should be a valid time"
+msgstr "La entrada debe ser una hora válida"
+
+msgctxt "time_delta_type"
+msgid "Input should be a valid timedelta"
+msgstr "La entrada debe ser un intervalo de tiempo válido"
+
+#, python-brace-format
+msgctxt "time_delta_parsing"
+msgid "Input should be a valid timedelta, {error}"
+msgstr "La entrada debe ser un intervalo de tiempo válido, {error}"
+
+msgctxt "tuple_type"
+msgid "Input should be a valid tuple"
+msgstr "La entrada debe ser una tupla válida"
+
+#, python-brace-format
+msgctxt "dataclass_exact_type"
+msgid "Input should be an instance of {class_name}"
+msgstr "La entrada debe ser una instancia de {class_name}"
+
+#, python-brace-format
+msgctxt "is_instance_of"
+msgid "Input should be an instance of {class}"
+msgstr "La entrada debe ser una instancia de {class}"
+
+msgctxt "callable_type"
+msgid "Input should be callable"
+msgstr "La entrada debe ser invocable"
+
+#, python-brace-format
+msgctxt "greater_than_equal"
+msgid "Input should be greater than or equal to {ge}"
+msgstr "La entrada debe ser mayor o igual que {ge}"
+
+#, python-brace-format
+msgctxt "greater_than"
+msgid "Input should be greater than {gt}"
+msgstr "La entrada debe ser mayor que {gt}"
+
+#, python-brace-format
+msgctxt "time_parsing"
+msgid "Input should be in a valid time format, {error}"
+msgstr "La entrada debe tener un formato de hora válido, {error}"
+
+msgctxt "datetime_future"
+msgid "Input should be in the future"
+msgstr "La entrada debe estar en el futuro"
+
+msgctxt "datetime_past"
+msgid "Input should be in the past"
+msgstr "La entrada debe estar en el pasado"
+
+msgctxt "iterable_type"
+msgid "Input should be iterable"
+msgstr "La entrada debe ser iterable"
+
+#, python-brace-format
+msgctxt "less_than_equal"
+msgid "Input should be less than or equal to {le}"
+msgstr "La entrada debe ser menor o igual que {le}"
+
+#, python-brace-format
+msgctxt "less_than"
+msgid "Input should be less than {lt}"
+msgstr "La entrada debe ser menor que {lt}"
+
+msgctxt "missing_sentinel_error"
+msgid "Input should be the 'MISSING' sentinel"
+msgstr "La entrada debe ser el centinela 'MISSING'"
+
+#, python-brace-format
+msgctxt "enum"
+msgid "Input should be {expected}"
+msgstr "La entrada debe ser {expected}"
+
+#, python-brace-format
+msgctxt "literal_error"
+msgid "Input should be {expected}"
+msgstr "La entrada debe ser {expected}"
+
+msgctxt "timezone_aware"
+msgid "Input should have timezone info"
+msgstr "La entrada debe tener información de zona horaria"
+
+msgctxt "timezone_naive"
+msgid "Input should not have timezone info"
+msgstr "La entrada no debe tener información de zona horaria"
+
+#, python-brace-format
+msgctxt "union_tag_invalid"
+msgid ""
+"Input tag '{tag}' found using {discriminator} does not match any of the expected tags: "
+"{expected_tags}"
+msgstr ""
+"La etiqueta '{tag}' encontrada con {discriminator} no coincide con ninguna de las etiquetas "
+"esperadas: {expected_tags}"
+
+#, python-brace-format
+msgctxt "url_syntax_violation"
+msgid "Input violated strict URL syntax rules, {error}"
+msgstr "La entrada infringe las reglas estrictas de sintaxis de URL, {error}"
+
+msgctxt "frozen_instance"
+msgid "Instance is frozen"
+msgstr "La instancia es inmutable"
+
+#, python-brace-format
+msgctxt "json_invalid"
+msgid "Invalid JSON: {error}"
+msgstr "JSON no válido: {error}"
+
+#, python-brace-format
+msgctxt "datetime_object_invalid"
+msgid "Invalid datetime object, got {error}"
+msgstr "Objeto datetime no válido, se recibió {error}"
+
+msgctxt "json_type"
+msgid "JSON input should be string, bytes or bytearray"
+msgstr "La entrada JSON debe ser una cadena, bytes o bytearray"
+
+msgctxt "invalid_key"
+msgid "Keys should be strings"
+msgstr "Las claves deben ser cadenas"
+
+msgctxt "missing_argument"
+msgid "Missing required argument"
+msgstr "Falta un argumento obligatorio"
+
+msgctxt "missing_keyword_only_argument"
+msgid "Missing required keyword only argument"
+msgstr "Falta un argumento obligatorio solo por nombre"
+
+msgctxt "missing_positional_only_argument"
+msgid "Missing required positional only argument"
+msgstr "Falta un argumento obligatorio solo posicional"
+
+#, python-brace-format
+msgctxt "no_such_attribute"
+msgid "Object has no attribute '{attribute}'"
+msgstr "El objeto no tiene el atributo '{attribute}'"
+
+msgctxt "recursion_loop"
+msgid "Recursion error - cyclic reference detected"
+msgstr "Error de recursión: se detectó una referencia cíclica"
+
+msgctxt "set_item_not_hashable"
+msgid "Set items should be hashable"
+msgstr "Los elementos de un conjunto deben ser hashables"
+
+msgctxt "string_not_ascii"
+msgid "String should contain only ASCII characters"
+msgstr "La cadena solo debe contener caracteres ASCII"
+
+#, python-brace-format
+msgctxt "string_too_short"
+msgid "String should have at least {min_length} character"
+msgid_plural "String should have at least {min_length} characters"
+msgstr[0] "La cadena debe tener al menos {min_length} carácter"
+msgstr[1] "La cadena debe tener al menos {min_length} caracteres"
+
+#, python-brace-format
+msgctxt "string_too_long"
+msgid "String should have at most {max_length} character"
+msgid_plural "String should have at most {max_length} characters"
+msgstr[0] "La cadena debe tener como máximo {max_length} carácter"
+msgstr[1] "La cadena debe tener como máximo {max_length} caracteres"
+
+#, python-brace-format
+msgctxt "string_pattern_mismatch"
+msgid "String should match pattern '{pattern}'"
+msgstr "La cadena debe coincidir con el patrón '{pattern}'"
+
+msgctxt "default_factory_not_called"
+msgid "The default factory uses validated data, but at least one validation error occurred"
+msgstr "La fábrica por defecto usa datos validados, pero se produjo al menos un error de validación"
+
+#, python-brace-format
+msgctxt "timezone_offset"
+msgid "Timezone offset of {tz_expected} required, got {tz_actual}"
+msgstr "Se requiere un desfase de zona horaria de {tz_expected}, se recibió {tz_actual}"
+
+msgctxt "url_type"
+msgid "URL input should be a string or URL"
+msgstr "La entrada de URL debe ser una cadena o una URL"
+
+#, python-brace-format
+msgctxt "url_scheme"
+msgid "URL scheme should be {expected_schemes}"
+msgstr "El esquema de la URL debe ser {expected_schemes}"
+
+#, python-brace-format
+msgctxt "url_too_long"
+msgid "URL should have at most {max_length} character"
+msgid_plural "URL should have at most {max_length} characters"
+msgstr[0] "La URL debe tener como máximo {max_length} carácter"
+msgstr[1] "La URL debe tener como máximo {max_length} caracteres"
+
+msgctxt "uuid_type"
+msgid "UUID input should be a string, bytes or UUID object"
+msgstr "La entrada UUID debe ser una cadena, bytes o un objeto UUID"
+
+#, python-brace-format
+msgctxt "uuid_version"
+msgid "UUID version {expected_version} expected"
+msgstr "Se esperaba un UUID de versión {expected_version}"
+
+#, python-brace-format
+msgctxt "union_tag_not_found"
+msgid "Unable to extract tag using discriminator {discriminator}"
+msgstr "No se pudo extraer la etiqueta con el discriminador {discriminator}"
+
+msgctxt "int_parsing_size"
+msgid "Unable to parse input string as an integer, exceeded maximum size"
+msgstr "No se pudo convertir la cadena en entero; se superó el tamaño máximo"
+
+msgctxt "unexpected_keyword_argument"
+msgid "Unexpected keyword argument"
+msgstr "Argumento con nombre inesperado"
+
+msgctxt "unexpected_positional_argument"
+msgid "Unexpected positional argument"
+msgstr "Argumento posicional inesperado"
+
+#, python-brace-format
+msgctxt "value_error"
+msgid "Value error, {error}"
+msgstr "Error de valor, {error}"
+
+#, python-brace-format
+msgctxt "too_short"
+msgid "{field_type} should have at least {min_length} item after validation, not {actual_length}"
+msgid_plural "{field_type} should have at least {min_length} items after validation, not {actual_length}"
+msgstr[0] ""
+"{field_type} debe tener al menos {min_length} elemento después de la validación, no "
+"{actual_length}"
+msgstr[1] ""
+"{field_type} debe tener al menos {min_length} elementos después de la validación, no "
+"{actual_length}"
+
+#, python-brace-format
+msgctxt "too_long"
+msgid "{field_type} should have at most {max_length} item after validation, not {actual_length}"
+msgid_plural "{field_type} should have at most {max_length} items after validation, not {actual_length}"
+msgstr[0] ""
+"{field_type} debe tener como máximo {max_length} elemento después de la validación, no "
+"{actual_length}"
+msgstr[1] ""
+"{field_type} debe tener como máximo {max_length} elementos después de la validación, no "
+"{actual_length}"
+

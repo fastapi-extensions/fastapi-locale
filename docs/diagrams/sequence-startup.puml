@@ -1,0 +1,52 @@
+@startuml sequence-startup
+!include include/style.iuml
+title Application startup: loading catalogs
+autonumber
+
+participant "Application\nmodule" as App
+participant "LocaleConfig" as Config
+participant "Localization" as Loc
+participant "CatalogStore" as Store
+participant "Babel\nTranslations" as Babel
+participant "FastAPI app" as Fast
+
+App -> Config : LocaleConfig(default_locale, supported_locales, catalog_dirs)
+activate Config
+Config -> Config : normalize tags, check default\nis in supported set
+alt invalid configuration
+  Config --> App : raise ConfigurationError
+end
+deactivate Config
+
+App -> Loc : Localization(config)
+activate Loc
+Loc -> Store : load(supported, default, directories, ...)
+activate Store
+loop each catalog directory, in order
+  loop each supported locale and domain found
+    Store -> Babel : Translations.load(dir, locale, domain)
+    Babel --> Store : catalog
+    Store -> Store : merge, later directory wins
+  end
+end
+Store -> Babel : load built-in "fastapi_locale" domain
+Store -> Store : build fallback chain per locale\n(pt-BR, pt, default locale, msgid)
+Store -> Store : build one Translator per supported locale
+alt missing directory or unreadable catalog
+  Store --> Loc : raise CatalogLoadError
+  Loc --> App : error propagates, app does not start
+end
+Store --> Loc : ready store (read only)
+deactivate Store
+Loc --> App : localization
+deactivate Loc
+
+App -> Loc : install(app)
+activate Loc
+Loc -> Fast : add_middleware(LocaleMiddleware, localization)
+Loc -> Fast : add_exception_handler(RequestValidationError, ...)
+Loc -> Fast : add_exception_handler(HTTPException, ...)
+Loc -> Loc : become process default\nif none is set
+Loc --> App
+deactivate Loc
+@enduml
