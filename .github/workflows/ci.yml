@@ -38,7 +38,7 @@ jobs:
       - name: Built-in error catalogs match the templates
         run: uv run python scripts/sync_error_catalog.py --check
       - name: Markdown
-        uses: DavidAnson/markdownlint-cli2-action@v20
+        uses: DavidAnson/markdownlint-cli2-action@v24
         with:
           globs: "**/*.md"
 
