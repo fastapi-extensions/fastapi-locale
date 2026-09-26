@@ -1,0 +1,142 @@
+@startuml class-design
+!include include/style.iuml
+title Design class diagram
+skinparam nodesep 30
+skinparam ranksep 50
+hide empty members
+
+package "Setup" as PSetup {
+  class LocaleConfig <<frozen dataclass>> {
+    +default_locale : str
+    +supported_locales : Sequence[str]
+    {field} +catalog_dirs : Sequence[str | PathLike] = ()
+    +default_domain : str = "messages"
+    +source_locale : str = "en"
+    +sources : Sequence[LocaleSource] | None = None
+    +builtin_error_messages : bool = True
+  }
+  class Localization {
+    +config : LocaleConfig
+    +default_locale : Locale
+    +supported_locales : tuple[Locale, ...]
+    +__init__(config: LocaleConfig)
+    +install(app: FastAPI) : None
+    +make_default() : None
+    +translator(locale: str | Locale) : Translator
+    +resolve(conn: HTTPConnection) : Resolution
+    +override(locale: str | Locale) : ContextManager[None]
+  }
+}
+
+package "Locale resolution" as PRes {
+  class Locale <<frozen dataclass>> {
+    +tag : str
+    +language : str
+    +script : str | None
+    +region : str | None
+    +text_direction : Literal["ltr", "rtl"]
+    +{static} parse(value: str) : Locale
+    +{static} try_parse(value: str) : Locale | None
+    +truncations() : Iterator[Locale]
+  }
+  interface LocaleSource <<Protocol>> {
+    +name : str
+    +vary : tuple[str, ...]
+    +__call__(conn: HTTPConnection) : Sequence[str]
+  }
+  class QueryParamSource {
+    +__init__(param: str = "lang")
+  }
+  class CookieSource {
+    +__init__(name: str = "locale")
+  }
+  class AcceptLanguageSource {
+    +__init__(max_length: int = 1024)
+  }
+  class Resolution <<frozen dataclass>> {
+    +locale : Locale
+    +decided_by : str
+  }
+  class LocaleMiddleware {
+    +__init__(app: ASGIApp, localization: Localization)
+    +__call__(scope, receive, send) : None
+  }
+}
+
+package "Translation" as PTr {
+  class CatalogStore {
+    +{static} load(supported, default, source, directories, builtin, default_domain) : CatalogStore
+    +translator_for(locale: str | Locale) : Translator
+    +match(tag: str) : Locale | None
+    +translator(locale: Locale) : Translator
+    +locales : frozenset[Locale]
+    +domains : frozenset[str]
+  }
+  class Translator {
+    +locale : Locale
+    +gettext(message, /, **params) : str
+    +ngettext(singular, plural, n, /, **params) : str
+    +pgettext(context, message, /, **params) : str
+    +npgettext(context, singular, plural, n, /, **params) : str
+    +dgettext(domain, message, /, **params) : str
+    +dngettext(domain, singular, plural, n, /, **params) : str
+    +dpgettext(domain, context, message, /, **params) : str
+    +dnpgettext(domain, context, singular, plural, n, /, **params) : str
+  }
+  class RequestLocale <<internal>> {
+    +translator : Translator
+    +decided_by : str
+    +overridden : bool
+    +change(translator: Translator) : None
+  }
+  class LazyText <<final>> {
+    -message : str
+    -plural : str | None
+    -n : int | None
+    -context : str | None
+    -domain : str | None
+    -params : Mapping[str, object]
+    +__str__() : str
+    +__format__(spec: str) : str
+    +__eq__(other: object) : bool
+    +__hash__() : int
+    +__get_pydantic_core_schema__(...)
+    +__get_pydantic_json_schema__(...)
+  }
+}
+
+package "Errors" as PErr {
+  class ErrorTemplate <<frozen dataclass>> {
+    +type : str
+    +message : str
+    +plural : str | None
+    +count_key : str | None
+  }
+  class ErrorLocalizer {
+    +__init__(templates: Mapping[str, ErrorTemplate])
+    +localize(errors: Sequence[Mapping], translator: Translator) : list[dict]
+  }
+}
+
+Localization *-- "1" LocaleConfig
+Localization *-- "1" CatalogStore
+Localization ..> LocaleMiddleware : installs
+Localization ..> ErrorLocalizer : installs handlers with
+LocaleConfig o-- "1..*" LocaleSource
+QueryParamSource ..|> LocaleSource
+CookieSource ..|> LocaleSource
+AcceptLanguageSource ..|> LocaleSource
+LocaleMiddleware --> "1" Localization
+LocaleMiddleware ..> Resolution : creates
+LocaleMiddleware ..> RequestLocale : opens per request
+Resolution --> "1" Locale
+CatalogStore *-- "1..*" Translator : one per locale
+Translator --> "1" Locale
+RequestLocale --> "1" Translator
+LazyText ..> Translator : resolved through\nthe locale context
+ErrorLocalizer o-- "*" ErrorTemplate
+ErrorLocalizer ..> Translator
+PSetup -[hidden]down- PRes
+PRes -[hidden]down- PTr
+PTr -[hidden]right- PErr
+@enduml

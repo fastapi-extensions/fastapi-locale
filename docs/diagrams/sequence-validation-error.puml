@@ -1,0 +1,54 @@
+@startuml sequence-validation-error
+!include include/style.iuml
+title Localized validation error with the user's saved language
+autonumber
+
+actor "API client" as Client
+participant "LocaleMiddleware" as MW
+participant "Locale context" as Ctx
+participant "FastAPI\ndependency solver" as Solver
+participant "current_user\n(application dependency)" as Auth
+participant "Validation\nexception handler" as Handler
+participant "Error templates" as Tpl
+participant "Translator" as Tr
+
+Client -> MW : POST /items\nAccept-Language: en\nAuthorization: Bearer ...\nbody {"price": -5}
+activate MW
+MW -> Ctx : set(RequestLocale(en, decided_by="accept-language"))
+MW -> Solver : app(scope, ...)
+activate Solver
+Solver -> Auth : run sub-dependencies first
+activate Auth
+Auth -> Auth : load user profile (language = "hi")
+Auth -> Ctx : set_locale("hi")
+note right of Ctx
+  Changes the per-request holder in place,
+  so the handler and the middleware see it.
+  See ADR-0004.
+end note
+Auth --> Solver : user
+deactivate Auth
+Solver -> Solver : validate body with Pydantic
+Solver -> Handler : RequestValidationError(errors)
+deactivate Solver
+activate Handler
+Handler -> Ctx : get_translator()
+Ctx --> Handler : Translator(hi)
+loop each error in exc.errors()
+  Handler -> Tpl : template_for(error["type"])
+  alt known type, for example greater_than
+    Tpl --> Handler : ErrorTemplate("Input should be greater than {gt}")
+    Handler -> Tr : dpgettext("fastapi_locale", "greater_than", template)
+    Tr --> Handler : translated template
+    Handler -> Handler : fill named placeholders from ctx
+  else unknown or custom type
+    Tpl --> Handler : none
+    Handler -> Handler : keep Pydantic msg
+  end
+end
+Handler --> MW : 422 {"detail": [...]}, same shape as FastAPI
+deactivate Handler
+MW -> MW : Content-Language: hi
+MW --> Client : 422 Unprocessable Content
+deactivate MW
+@enduml

@@ -1,0 +1,21 @@
+' Shared look for all project diagrams.
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundCorner 8
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 12
+skinparam titleFontSize 15
+skinparam titleFontStyle bold
+skinparam ArrowColor #3B4252
+skinparam ArrowThickness 1
+skinparam packageStyle rectangle
+skinparam noteBackgroundColor #FFF8DC
+skinparam noteBorderColor #C8B560
+skinparam sequenceMessageAlign left
+skinparam sequenceLifeLineBorderColor #8C96A8
+skinparam sequenceGroupBodyBackgroundColor #FAFBFC
+skinparam classAttributeIconSize 0
+skinparam stereotypeCBackgroundColor #DDE7F3
+skinparam legendBackgroundColor #F5F7FA
+skinparam legendBorderColor #C9D1DC

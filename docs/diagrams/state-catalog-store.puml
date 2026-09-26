@@ -1,0 +1,16 @@
+@startuml state-catalog-store
+!include include/style.iuml
+title Catalog store lifecycle
+hide empty description
+
+[*] --> Configured : LocaleConfig validated
+Configured --> Loading : Localization created
+Loading --> Ready : all catalogs parsed,\nfallback chains built
+Loading --> Failed : missing directory or\nunreadable catalog
+Failed --> [*] : CatalogLoadError,\napplication does not start
+state Ready : read only, shared by all requests
+Ready --> Reloading : files changed\n(development only, planned)
+Reloading --> Ready : new store swapped in atomically
+Reloading --> Ready : reload failed,\nprevious store kept
+Ready --> [*] : process exits
+@enduml

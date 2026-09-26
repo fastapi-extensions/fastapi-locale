@@ -1,0 +1,28 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
+
+msgid "Hello"
+msgstr "مرحبا"
+
+msgid "Hello {name}"
+msgstr "مرحبا {name}"
+
+msgid "{n} file"
+msgid_plural "{n} files"
+msgstr[0] "لا ملفات {n}"
+msgstr[1] "ملف واحد {n}"
+msgstr[2] "ملفان {n}"
+msgstr[3] "{n} ملفات"
+msgstr[4] "{n} ملفا"
+msgstr[5] "{n} ملف"
+
+msgctxt "month"
+msgid "May"
+msgstr "مايو"
+
+msgctxt "verb"
+msgid "May"
+msgstr "يجوز"

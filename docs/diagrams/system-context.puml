@@ -1,0 +1,45 @@
+@startuml system-context
+!include include/style.iuml
+title System context
+
+actor "API client" as Client
+actor "API developer" as Dev
+actor "Translator" as Tr
+
+cloud "HTTP cache or CDN" as Cache
+
+node "ASGI server process" as Server {
+  component "FastAPI application" as App {
+    component "fastapi-locale\nruntime" as Lib #DDE7F3
+  }
+}
+
+folder "Application repository" as Repo {
+  file "messages.pot" as Pot
+  file "<locale>/LC_MESSAGES/*.po" as Po
+}
+database "Compiled catalogs\n(*.mo)" as Mo
+component "fastapi-locale CLI" as Cli #DDE7F3
+component "Babel\n(CLDR data, extraction)" as Babel
+component "Pydantic" as Pydantic
+component "Translation tool\n(Poedit, Weblate)" as Tool
+
+Client --> Cache : HTTP request\nAccept-Language, cookie, query
+Cache --> Server : cache miss
+Lib --> Mo : loads at startup
+Lib ..> Babel : plural rules,\n.mo parsing
+Lib ..> Pydantic : error types,\ncore schema hooks
+Dev --> Cli : extract, init,\nupdate, compile, check
+Cli ..> Babel : uses
+Cli --> Pot : writes
+Cli --> Po : creates, updates
+Cli --> Mo : compiles
+Tr --> Tool
+Tool --> Po : edits
+
+note right of Cache
+  Keys cached responses on the
+  headers listed in Vary, so each
+  language is cached separately.
+end note
+@enduml

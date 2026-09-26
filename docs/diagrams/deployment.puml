@@ -1,0 +1,34 @@
+@startuml deployment
+!include include/style.iuml
+title Deployment view
+
+node "Reverse proxy or CDN" as Proxy {
+  component "Response cache\n(keyed on URL + Vary headers)" as Cache
+}
+
+node "Application host or container" as Host {
+  artifact "fastapi_locale wheel\n(includes built-in error .mo files)" as Wheel
+  folder "app/locales\n(*.mo built in CI)" as Locales
+  node "Worker process 1" as W1 {
+    component "FastAPI app" as A1
+    component "Catalog store\n(read only)" as S1
+  }
+  node "Worker process N" as WN {
+    component "FastAPI app" as AN
+    component "Catalog store\n(read only)" as SN
+  }
+}
+
+Proxy --> W1 : HTTP
+Proxy --> WN : HTTP
+S1 ..> Locales : loaded once\nat startup
+SN ..> Locales
+S1 ..> Wheel
+SN ..> Wheel
+
+note bottom of Host
+  Each worker loads its own copy at startup.
+  Nothing is shared or written between workers,
+  so the library scales with worker count.
+end note
+@enduml

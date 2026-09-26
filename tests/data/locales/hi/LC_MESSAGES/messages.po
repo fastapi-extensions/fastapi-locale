@@ -1,0 +1,27 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: hi\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Hello"
+msgstr "नमस्ते"
+
+msgid "Hello {name}"
+msgstr "नमस्ते {name}"
+
+msgid "{n} file"
+msgid_plural "{n} files"
+msgstr[0] "{n} फ़ाइल"
+msgstr[1] "{n} फ़ाइलें"
+
+msgctxt "month"
+msgid "May"
+msgstr "मई"
+
+msgctxt "verb"
+msgid "May"
+msgstr "सकता है"
+
+msgid "Item not found"
+msgstr "आइटम नहीं मिला"

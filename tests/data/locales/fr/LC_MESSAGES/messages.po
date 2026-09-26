@@ -1,0 +1,24 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Hello"
+msgstr "Bonjour"
+
+msgid "Hello {name}"
+msgstr "Bonjour {name}"
+
+msgid "{n} file"
+msgid_plural "{n} files"
+msgstr[0] "{n} fichier"
+msgstr[1] "{n} fichiers"
+
+msgctxt "month"
+msgid "May"
+msgstr "Mai"
+
+msgctxt "verb"
+msgid "May"
+msgstr "Peut"

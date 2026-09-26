@@ -1,0 +1,26 @@
+@startuml activity-accept-language
+!include include/style.iuml
+title Accept-Language source: turning the header into candidates
+
+start
+:read every Accept-Language header line\nand join with ", ";
+if (longer than the configured limit?) then (yes)
+  :cut at the last comma inside the limit;
+endif
+:split into members at commas;
+while (more members?) is (yes)
+  :split range and parameters at ";";
+  if (range empty or "*"?) then (yes)
+    :skip (wildcard is ignored by RFC 4647 lookup);
+  elseif (q parameter present but not a valid qvalue?) then (yes)
+    :skip the member;
+  elseif (q = 0?) then (yes)
+    :skip (the client refused it);
+  else
+    :keep (range, q, position);
+  endif
+endwhile (no)
+:sort by q descending, keep header order for ties;
+:return the ranges as candidates;
+stop
+@enduml

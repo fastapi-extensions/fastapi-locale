@@ -1,0 +1,37 @@
+@startuml activity-catalog-workflow
+!include include/style.iuml
+title Translation workflow
+
+|Developer|
+start
+:mark text with gettext(), gettext_lazy()\nand the other functions;
+:run fastapi-locale extract;
+|CLI|
+:scan sources with Babel extractors;
+:write messages.pot;
+|Developer|
+if (new language?) then (yes)
+  :run fastapi-locale init --locale <tag>;
+  |CLI|
+  :create <tag>/LC_MESSAGES/messages.po\nwith CLDR plural rules;
+else (no)
+  |Developer|
+  :run fastapi-locale update;
+  |CLI|
+  :merge new and changed messages\ninto every .po file;
+endif
+|Translator|
+:translate the .po file\n(Poedit, Weblate, text editor);
+|Developer|
+:commit the .po files;
+|CI pipeline|
+:run fastapi-locale check;
+if (out of date, fuzzy or missing entries?) then (yes)
+  :fail the build with a report;
+  stop
+else (no)
+  :run fastapi-locale compile;
+  :package .mo files with the application;
+endif
+stop
+@enduml

@@ -1,0 +1,23 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Hello"
+msgstr "こんにちは"
+
+msgid "Hello {name}"
+msgstr "こんにちは {name}"
+
+msgid "{n} file"
+msgid_plural "{n} files"
+msgstr[0] "{n} ファイル"
+
+msgctxt "month"
+msgid "May"
+msgstr "5月"
+
+msgctxt "verb"
+msgid "May"
+msgstr "してもよい"

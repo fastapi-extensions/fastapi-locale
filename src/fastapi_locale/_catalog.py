@@ -1,0 +1,244 @@
+"""Catalog store: loads gettext catalogs once and builds one translator per supported locale."""
+
+from __future__ import annotations
+
+import gettext
+import io
+import logging
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+from babel.messages.mofile import write_mo
+from babel.messages.pofile import read_po
+
+from fastapi_locale._locale import Locale
+from fastapi_locale._translator import Catalog, MessageKey, Translator, english_plural
+from fastapi_locale.exceptions import CatalogLoadError, UnsupportedLocaleError
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping, Sequence
+
+__all__ = ["BUILTIN_DIRECTORY", "BUILTIN_DOMAIN", "CatalogStore"]
+
+logger = logging.getLogger("fastapi_locale")
+
+BUILTIN_DOMAIN = "fastapi_locale"
+BUILTIN_DIRECTORY = Path(__file__).parent / "locales"
+_MESSAGES_DIR = "LC_MESSAGES"
+# Request input decides the keys, so the match cache is bounded and cleared when full.
+_MATCH_CACHE_SIZE = 2048
+
+
+class CatalogStore:
+    """Read-only set of translators, one per supported locale."""
+
+    __slots__ = ("_default", "_domains", "_matches", "_translators")
+
+    def __init__(
+        self,
+        translators: Mapping[str, Translator],
+        default: Locale,
+        domains: Iterable[str],
+    ) -> None:
+        self._translators = dict(translators)
+        self._default = default
+        self._domains = frozenset(domains)
+        self._matches: dict[str, Locale | None] = {}
+
+    @classmethod
+    def load(
+        cls,
+        *,
+        supported: Sequence[Locale],
+        default: Locale,
+        source: Locale,
+        directories: Sequence[Path],
+        builtin: bool = True,
+        default_domain: str = "messages",
+    ) -> CatalogStore:
+        """Load catalogs for the supported locales; raise ``CatalogLoadError`` on any failure."""
+        wanted = {
+            truncated.tag for locale in (*supported, default) for truncated in locale.truncations()
+        }
+        catalogs: dict[tuple[str, str], Catalog] = {}
+        if builtin:
+            for catalog in _load_builtin(wanted):
+                _merge_into(catalogs, catalog)
+        for directory in directories:
+            for catalog in _load_directory(directory, wanted):
+                _merge_into(catalogs, catalog)
+
+        domains = {domain for _, domain in catalogs} | {default_domain}
+        translators = {
+            locale.tag: Translator(
+                locale,
+                {domain: _chain(catalogs, locale, default, domain) for domain in domains},
+                default_domain,
+            )
+            for locale in supported
+        }
+        _report(catalogs, supported, source, default_domain, directories)
+        return cls(translators, default, domains)
+
+    @property
+    def default_translator(self) -> Translator:
+        """Translator for the default locale."""
+        return self._translators[self._default.tag]
+
+    @property
+    def locales(self) -> frozenset[Locale]:
+        """Supported locales."""
+        return frozenset(translator.locale for translator in self._translators.values())
+
+    @property
+    def domains(self) -> frozenset[str]:
+        """Domains that have at least one catalog, plus the default domain."""
+        return self._domains
+
+    def match(self, value: str) -> Locale | None:
+        """Return the supported locale for a language range using RFC 4647 lookup, if any."""
+        try:
+            return self._matches[value]
+        except KeyError:
+            pass
+        result = self._lookup(value)
+        if len(self._matches) >= _MATCH_CACHE_SIZE:
+            self._matches.clear()
+        self._matches[value] = result
+        return result
+
+    def _lookup(self, value: str) -> Locale | None:
+        locale = Locale.try_parse(value)
+        if locale is None:
+            return None
+        for candidate in locale.truncations():
+            translator = self._translators.get(candidate.tag)
+            if translator is not None:
+                return translator.locale
+        return None
+
+    def translator_for(self, locale: str | Locale) -> Translator:
+        """Return the translator for a locale; raise ``UnsupportedLocaleError`` if none matches."""
+        tag = locale.tag if isinstance(locale, Locale) else locale
+        matched = self.match(tag)
+        if matched is None:
+            msg = (
+                f"locale {tag!r} is not supported; "
+                f"supported locales are {sorted(self._translators)}"
+            )
+            raise UnsupportedLocaleError(msg)
+        return self._translators[matched.tag]
+
+
+def _chain(
+    catalogs: Mapping[tuple[str, str], Catalog],
+    locale: Locale,
+    default: Locale,
+    domain: str,
+) -> tuple[Catalog, ...]:
+    chain: list[Catalog] = []
+    for candidate in (*locale.truncations(), *default.truncations()):
+        catalog = catalogs.get((candidate.tag, domain))
+        if catalog is not None and catalog not in chain:
+            chain.append(catalog)
+    return tuple(chain)
+
+
+def _merge_into(catalogs: dict[tuple[str, str], Catalog], catalog: Catalog) -> None:
+    """Add a catalog; a later catalog for the same locale and domain overrides earlier entries."""
+    key = (catalog.locale, catalog.domain)
+    existing = catalogs.get(key)
+    if existing is None:
+        catalogs[key] = catalog
+        return
+    catalogs[key] = Catalog(
+        locale=catalog.locale,
+        domain=catalog.domain,
+        messages={**existing.messages, **catalog.messages},
+        plural=catalog.plural,
+        sources=(*existing.sources, *catalog.sources),
+    )
+
+
+def _locale_directories(directory: Path, wanted: set[str]) -> Iterable[tuple[str, Path]]:
+    for child in sorted(directory.iterdir()):
+        if not child.is_dir():
+            continue
+        locale = Locale.try_parse(child.name)
+        if locale is not None and locale.tag in wanted:
+            yield locale.tag, child / _MESSAGES_DIR
+
+
+def _load_directory(directory: Path, wanted: set[str]) -> Iterable[Catalog]:
+    if not directory.is_dir():
+        msg = f"catalog directory does not exist: {directory}"
+        raise CatalogLoadError(msg)
+    for tag, messages_dir in _locale_directories(directory, wanted):
+        if not messages_dir.is_dir():
+            continue
+        for path in sorted(messages_dir.glob("*.mo")):
+            try:
+                with path.open("rb") as stream:
+                    yield _from_gnu(tag, path.stem, gettext.GNUTranslations(stream), str(path))
+            except (OSError, UnicodeDecodeError, ValueError) as exc:
+                msg = f"cannot read catalog {path}: {exc}"
+                raise CatalogLoadError(msg) from exc
+
+
+def _load_builtin(wanted: set[str]) -> Iterable[Catalog]:
+    for tag, messages_dir in _locale_directories(BUILTIN_DIRECTORY, wanted):
+        path = messages_dir / f"{BUILTIN_DOMAIN}.po"
+        if not path.is_file():
+            continue
+        try:
+            with path.open("rb") as stream:
+                catalog = read_po(stream, locale=tag.replace("-", "_"), domain=BUILTIN_DOMAIN)
+            buffer = io.BytesIO()
+            write_mo(buffer, catalog)
+            buffer.seek(0)
+            translations = gettext.GNUTranslations(buffer)
+        except (OSError, ValueError, LookupError) as exc:
+            msg = f"cannot read built-in catalog {path}: {exc}"
+            raise CatalogLoadError(msg) from exc
+        yield _from_gnu(tag, BUILTIN_DOMAIN, translations, str(path))
+
+
+def _from_gnu(tag: str, domain: str, translations: gettext.GNUTranslations, source: str) -> Catalog:
+    # GNUTranslations keeps its parsed messages in _catalog; this is the one place that reads it.
+    raw: dict[MessageKey, str] = dict(getattr(translations, "_catalog", {}))
+    raw.pop("", None)  # the header entry
+    plural = getattr(translations, "plural", None)
+    return Catalog(
+        locale=tag,
+        domain=domain,
+        messages=raw,
+        plural=plural if callable(plural) else english_plural,
+        sources=(source,),
+    )
+
+
+def _report(
+    catalogs: Mapping[tuple[str, str], Catalog],
+    supported: Sequence[Locale],
+    source: Locale,
+    default_domain: str,
+    directories: Sequence[Path],
+) -> None:
+    logger.info(
+        "Loaded %d catalogs (%d messages) for locales %s from %s",
+        len(catalogs),
+        sum(len(catalog.messages) for catalog in catalogs.values()),
+        ", ".join(locale.tag for locale in supported),
+        ", ".join(str(directory) for directory in directories) or "no application directories",
+    )
+    if not directories:
+        return  # only built-in error messages are wanted; missing app catalogs are expected
+    for locale in supported:
+        if locale.language == source.language:
+            continue
+        if not any((t.tag, default_domain) in catalogs for t in locale.truncations()):
+            logger.warning(
+                "No %r catalog found for supported locale %s; messages will not be translated",
+                default_domain,
+                locale.tag,
+            )
