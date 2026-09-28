@@ -80,7 +80,9 @@ Fields that hold lazy text are typed `LazyText`, not `str`.
 
 ```python
 class NewItem(BaseModel):
-    name: str = Field(min_length=3, description=gettext_noop("Display name of the item"))
+    name: str = Field(
+        min_length=3, description=gettext_noop("Display name of the item")
+    )
     quantity: int = Field(gt=0)
 
 
@@ -89,7 +91,10 @@ async def create_item(item: NewItem, tr: TranslatorDep) -> Item:
     item_id = max(ITEMS) + 1
     ITEMS[item_id] = item.name
     summary = tr.ngettext(
-        "{n} unit of {name} added", "{n} units of {name} added", item.quantity, name=item.name
+        "{n} unit of {name} added",
+        "{n} units of {name} added",
+        item.quantity,
+        name=item.name,
     )
     return Item(id=item_id, name=item.name, summary=summary)
 ```

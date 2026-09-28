@@ -14,7 +14,12 @@ uses `hi` when only `hi` is supported. If nothing matches, the default locale is
 Choose your own sources and order:
 
 ```python
-from fastapi_locale import AcceptLanguageSource, CookieSource, LocaleConfig, QueryParamSource
+from fastapi_locale import (
+    AcceptLanguageSource,
+    CookieSource,
+    LocaleConfig,
+    QueryParamSource,
+)
 
 LocaleConfig(
     default_locale="en",
