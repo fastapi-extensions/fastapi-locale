@@ -95,6 +95,7 @@ directory. Warnings are errors, so a deprecation in a dependency shows up at onc
 | Tests / Python 3.11 to 3.14 | Whole suite with coverage |
 | Lowest supported dependencies | Unit and integration tests with the lowest allowed FastAPI, Pydantic and Babel |
 | Tests / macOS, Windows | Unit and integration tests |
+| Package | Builds the wheel and sdist and runs `scripts/check-dist.sh` |
 | Performance budget | Benchmarks |
 | Documentation and diagrams | Strict docs build; rendered diagrams match their sources |
 
@@ -143,9 +144,19 @@ tags, and `pypi` waits for a maintainer's approval before publishing.
 
 6. Approve the `pypi` deployment in the Actions tab when the workflow asks.
 
-The release workflow checks the tag against `pyproject.toml` and the changelog, runs the tests, builds and
-inspects the wheel, publishes with trusted publishing and creates the GitHub release from the changelog
-section.
+### What the release workflow does
+
+| Job | Checks |
+| --- | --- |
+| Validate the tag | The tag is `vX.Y.Z` or `vX.Y.Z(a,b,rc)N`, matches `pyproject.toml`, has a `CHANGELOG.md` section, and points at a commit on `main`. |
+| Test and build | The whole test suite, then `uv build` and `scripts/check-dist.sh`: metadata renders on PyPI, the wheel has `py.typed` and the built-in catalogs and no build output, and it installs into a clean environment and localizes a 422. |
+| Publish | Uploads with trusted publishing and PEP 740 attestations; waits for approval on `pypi`. |
+| Install from the index | Installs the exact version back from PyPI or TestPyPI and imports it, retrying while the index catches up. |
+| GitHub release | Creates the release from the changelog section and attaches the files; pre-releases are marked as such. |
+
+A failure in any job stops the ones after it, so a GitHub release only exists for a version that installs.
+The same `scripts/check-dist.sh` runs in CI on every pull request (the Package job), so packaging problems
+show up long before a tag.
 
 ### Branch protection
 

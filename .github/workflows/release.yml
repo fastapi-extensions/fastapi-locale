@@ -1,5 +1,9 @@
-# Release on a version tag (v1.2.3, or v1.2.3rc1 for a pre-release on TestPyPI).
-# Publishing uses PyPI trusted publishing (OIDC), so no API token is stored anywhere.
+# Release on a version tag: v1.2.3 publishes to PyPI, v1.2.3rc1 (or a1, b1) to TestPyPI.
+#
+#   validate -> build -> publish -> verify -> github-release
+#
+# Publishing uses PyPI trusted publishing (OIDC): no API token exists anywhere. The pypi environment
+# waits for a maintainer's approval. Every upload carries PEP 740 attestations.
 name: Release
 
 on:
@@ -22,9 +26,16 @@ jobs:
       prerelease: ${{ steps.meta.outputs.prerelease }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # full history, to check that the tag is on main
       - id: meta
+        name: Read version from the tag
         run: |
           version="${GITHUB_REF_NAME#v}"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+((a|b|rc)[0-9]+)?$ ]]; then
+            echo "::error::tag $GITHUB_REF_NAME is not vX.Y.Z or vX.Y.Z(a|b|rc)N"
+            exit 1
+          fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
           if [[ "$version" =~ (a|b|rc)[0-9]+$ ]]; then
             echo "prerelease=true" >> "$GITHUB_OUTPUT"
@@ -34,13 +45,26 @@ jobs:
       - name: Tag matches pyproject.toml
         run: |
           project_version="$(grep -m1 '^version = ' pyproject.toml | cut -d'"' -f2)"
-          test "$project_version" = "${{ steps.meta.outputs.version }}" \
-            || { echo "pyproject.toml has $project_version"; exit 1; }
+          if [[ "$project_version" != "${{ steps.meta.outputs.version }}" ]]; then
+            echo "::error::pyproject.toml has version $project_version, the tag says ${{ steps.meta.outputs.version }}"
+            exit 1
+          fi
       - name: CHANGELOG has an entry
-        run: grep -q "^## \[${{ steps.meta.outputs.version }}\]" CHANGELOG.md
+        run: |
+          if ! grep -q "^## \[${{ steps.meta.outputs.version }}\]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no section for ${{ steps.meta.outputs.version }}"
+            exit 1
+          fi
+      - name: Tag is on main
+        run: |
+          git fetch --quiet origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::the tagged commit is not on main"
+            exit 1
+          fi
 
   build:
-    name: Build and verify
+    name: Test and build
     needs: validate
     runs-on: ubuntu-latest
     steps:
@@ -49,22 +73,21 @@ jobs:
       - run: uv sync --locked
       - run: uv run pytest
       - run: uv build
-      - name: Wheel contains the type marker and the built-in catalogs
-        run: |
-          unzip -l dist/*.whl > contents.txt
-          grep -q "fastapi_locale/py.typed" contents.txt
-          grep -q "fastapi_locale/locales/de/LC_MESSAGES/fastapi_locale.po" contents.txt
+      - name: Check metadata, contents and a clean install
+        run: scripts/check-dist.sh
       - uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/
+          if-no-files-found: error
 
   publish:
-    name: Publish
+    name: Publish to ${{ needs.validate.outputs.prerelease == 'true' && 'TestPyPI' || 'PyPI' }}
     needs: [validate, build]
     runs-on: ubuntu-latest
     environment:
       name: ${{ needs.validate.outputs.prerelease == 'true' && 'testpypi' || 'pypi' }}
+      url: ${{ needs.validate.outputs.prerelease == 'true' && 'https://test.pypi.org/p/fastapi-locale' || 'https://pypi.org/p/fastapi-locale' }}
     permissions:
       id-token: write
     steps:
@@ -74,14 +97,47 @@ jobs:
           path: dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          repository-url: >-
-            ${{ needs.validate.outputs.prerelease == 'true'
-                && 'https://test.pypi.org/legacy/'
-                || 'https://upload.pypi.org/legacy/' }}
+          repository-url: ${{ needs.validate.outputs.prerelease == 'true' && 'https://test.pypi.org/legacy/' || 'https://upload.pypi.org/legacy/' }}
+          attestations: true
+          print-hash: true
+
+  verify:
+    name: Install from the index
+    needs: [validate, publish]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: astral-sh/setup-uv@v10.2.0
+      - name: Install the published version and use it
+        env:
+          VERSION: ${{ needs.validate.outputs.version }}
+          INDEX: ${{ needs.validate.outputs.prerelease == 'true' && 'https://test.pypi.org/simple/' || 'https://pypi.org/simple/' }}
+        run: |
+          uv venv --quiet
+          # A new upload can take a minute to appear in the index.
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if uv pip install --quiet --no-cache --prerelease allow \
+                 --index-url "$INDEX" --extra-index-url https://pypi.org/simple/ \
+                 --index-strategy unsafe-best-match "fastapi-locale==$VERSION"; then
+              break
+            fi
+            if [[ $attempt == 10 ]]; then
+              echo "::error::fastapi-locale $VERSION did not appear on $INDEX"
+              exit 1
+            fi
+            sleep 30
+          done
+          .venv/bin/python -c "
+          import importlib.metadata, os
+          import fastapi_locale
+          installed = importlib.metadata.version('fastapi-locale')
+          assert installed == os.environ['VERSION'], installed
+          print('installed', installed)
+          "
+          .venv/bin/fastapi-locale --help > /dev/null
 
   github-release:
     name: GitHub release
-    needs: [validate, publish]
+    needs: [validate, verify]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -98,8 +154,12 @@ jobs:
             found && /^## \[/ { exit }
             found { print }
           ' CHANGELOG.md > notes.md
-      - env:
+          test -s notes.md
+      - name: Create the release
+        env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" dist/* --notes-file notes.md \
-            ${{ needs.validate.outputs.prerelease == 'true' && '--prerelease' || '' }}
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "fastapi-locale ${{ needs.validate.outputs.version }}" \
+            --notes-file notes.md \
+            ${{ needs.validate.outputs.prerelease == 'true' && '--prerelease' || '--latest' }}
