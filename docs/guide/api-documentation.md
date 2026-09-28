@@ -11,7 +11,10 @@ builds its schema as usual, and the extractor finds the text for translators:
 ```python
 from fastapi_locale import gettext_noop
 
-app = FastAPI(title=gettext_noop("Inventory"), description=gettext_noop("Manage your stock."))
+app = FastAPI(
+    title=gettext_noop("Inventory"),
+    description=gettext_noop("Manage your stock."),
+)
 
 
 class NewItem(BaseModel):
@@ -58,5 +61,9 @@ with 300 routes takes about 1.5 ms to translate.
 ## Turning it off
 
 ```python
-LocaleConfig(default_locale="en", supported_locales=["en", "de"], localize_openapi=False)
+LocaleConfig(
+    default_locale="en",
+    supported_locales=["en", "de"],
+    localize_openapi=False,
+)
 ```
