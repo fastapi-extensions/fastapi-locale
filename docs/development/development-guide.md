@@ -108,21 +108,21 @@ pull requests.
 
 These steps need account access and are done once, by a maintainer.
 
-**PyPI trusted publishing.** The project does not exist on PyPI before the first upload, so add a
-*pending* publisher on both indexes (Account settings, Publishing, "Add a new pending publisher"):
+**PyPI trusted publishing.** Registered on pypi.org as a pending publisher (it becomes a normal publisher
+with the first upload):
 
-| Field | pypi.org | test.pypi.org |
-| --- | --- | --- |
-| PyPI project name | `fastapi-locale` | `fastapi-locale` |
-| Owner | `fastapi-extensions` | `fastapi-extensions` |
-| Repository name | `fastapi-locale` | `fastapi-locale` |
-| Workflow name | `release.yml` | `release.yml` |
-| Environment name | `pypi` | `testpypi` |
+| Field | Value |
+| --- | --- |
+| PyPI project name | `fastapi-locale` |
+| Owner | `fastapi-extensions` |
+| Repository name | `fastapi-locale` |
+| Workflow name | `release.yml` |
+| Environment name | `pypi` |
 
 No API token is created or stored anywhere.
 
-**GitHub environments.** Already configured: `testpypi` and `pypi` accept deployments only from `v*`
-tags, and `pypi` waits for a maintainer's approval before publishing.
+**GitHub environment.** Already configured: `pypi` accepts deployments only from `v*` tags and waits for a
+maintainer's approval before publishing.
 
 **Read the Docs.** Import `fastapi-extensions/fastapi-locale` at readthedocs.org. The build is defined by
 `.readthedocs.yaml`; enable "Build pull requests" so each pull request gets a preview.
@@ -133,8 +133,8 @@ tags, and `pypi` waits for a maintainer's approval before publishing.
 2. `version` in `pyproject.toml` is updated, and `CHANGELOG.md` has a section `## [X.Y.Z]` with the date;
    the `Unreleased` entries move into it.
 3. The change is merged to `main` through a pull request with every required check green.
-4. For a pre-release, tag `vX.Y.ZrcN` first and check the package on TestPyPI:
-   `uv pip install -i https://test.pypi.org/simple/ fastapi-locale==X.Y.ZrcN`.
+4. For a pre-release, tag `vX.Y.ZrcN` first. It is published to PyPI as a pre-release, which pip only
+   installs when asked (`pip install --pre fastapi-locale` or `fastapi-locale==X.Y.ZrcN`).
 5. Tag the release and push the tag:
 
     ```sh
@@ -150,8 +150,8 @@ tags, and `pypi` waits for a maintainer's approval before publishing.
 | --- | --- |
 | Validate the tag | The tag is `vX.Y.Z` or `vX.Y.Z(a,b,rc)N`, matches `pyproject.toml`, has a `CHANGELOG.md` section, and points at a commit on `main`. |
 | Test and build | The whole test suite, then `uv build` and `scripts/check-dist.sh`: metadata renders on PyPI, the wheel has `py.typed` and the built-in catalogs and no build output, and it installs into a clean environment and localizes a 422. |
-| Publish | Uploads with trusted publishing and PEP 740 attestations; waits for approval on `pypi`. |
-| Install from the index | Installs the exact version back from PyPI or TestPyPI and imports it, retrying while the index catches up. |
+| Publish | Uploads to PyPI with trusted publishing and PEP 740 attestations, after a maintainer approves. |
+| Install from the index | Installs the exact version back from PyPI and imports it, retrying while the index catches up. |
 | GitHub release | Creates the release from the changelog section and attaches the files; pre-releases are marked as such. |
 
 A failure in any job stops the ones after it, so a GitHub release only exists for a version that installs.
