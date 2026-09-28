@@ -1,6 +1,7 @@
 # ADR-0004: Resolve the locale in middleware and let dependencies refine it
 
-- Status: Proposed
+- Status: Accepted
+- Accepted: 2026-09-28
 - Date: 2026-09-26
 
 ## Context

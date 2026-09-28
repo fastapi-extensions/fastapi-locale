@@ -1,6 +1,7 @@
 # ADR-0007: Named placeholder formatting instead of str.format
 
-- Status: Proposed
+- Status: Accepted
+- Accepted: 2026-09-28
 - Date: 2026-09-26
 
 ## Context

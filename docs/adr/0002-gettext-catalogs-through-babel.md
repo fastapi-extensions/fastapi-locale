@@ -1,6 +1,7 @@
 # ADR-0002: Use GNU gettext catalogs loaded through Babel
 
-- Status: Proposed
+- Status: Accepted
+- Accepted: 2026-09-28
 - Date: 2026-09-26
 
 ## Context

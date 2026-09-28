@@ -1,6 +1,7 @@
 # ADR-0010: Project toolchain
 
-- Status: Proposed
+- Status: Accepted
+- Accepted: 2026-09-28
 - Date: 2026-09-26
 
 ## Context
@@ -31,7 +32,7 @@ same organization.
 | Security | CodeQL, Dependabot, PyPI trusted publishing | No long-lived PyPI tokens. |
 | Development environment | Dev container | Python, uv, Java and Graphviz for PlantUML, pre-commit installed. |
 
-The minimum Python version is open issue OI-01 in the SRS.
+The minimum Python version is 3.11 (SRS section 7, OI-01).
 
 ## Consequences
 

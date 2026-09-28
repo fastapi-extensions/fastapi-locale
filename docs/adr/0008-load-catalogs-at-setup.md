@@ -1,6 +1,7 @@
 # ADR-0008: Load catalogs when the application is set up
 
-- Status: Proposed
+- Status: Accepted
+- Accepted: 2026-09-28
 - Date: 2026-09-26
 
 ## Context
