@@ -1,4 +1,5 @@
-# Release on a version tag: v1.2.3 publishes to PyPI, v1.2.3rc1 (or a1, b1) to TestPyPI.
+# Release on a version tag: v1.2.3, or v1.2.3rc1 (a1, b1) for a pre-release. Both publish to PyPI;
+# pip installs a pre-release only when asked for it (--pre or an exact version).
 #
 #   validate -> build -> publish -> verify -> github-release
 #
@@ -82,12 +83,12 @@ jobs:
           if-no-files-found: error
 
   publish:
-    name: Publish to ${{ needs.validate.outputs.prerelease == 'true' && 'TestPyPI' || 'PyPI' }}
+    name: Publish to PyPI
     needs: [validate, build]
     runs-on: ubuntu-latest
     environment:
-      name: ${{ needs.validate.outputs.prerelease == 'true' && 'testpypi' || 'pypi' }}
-      url: ${{ needs.validate.outputs.prerelease == 'true' && 'https://test.pypi.org/p/fastapi-locale' || 'https://pypi.org/p/fastapi-locale' }}
+      name: pypi
+      url: https://pypi.org/project/fastapi-locale/${{ needs.validate.outputs.version }}/
     permissions:
       id-token: write
     steps:
@@ -97,7 +98,6 @@ jobs:
           path: dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          repository-url: ${{ needs.validate.outputs.prerelease == 'true' && 'https://test.pypi.org/legacy/' || 'https://upload.pypi.org/legacy/' }}
           attestations: true
           print-hash: true
 
@@ -110,18 +110,15 @@ jobs:
       - name: Install the published version and use it
         env:
           VERSION: ${{ needs.validate.outputs.version }}
-          INDEX: ${{ needs.validate.outputs.prerelease == 'true' && 'https://test.pypi.org/simple/' || 'https://pypi.org/simple/' }}
         run: |
           uv venv --quiet
           # A new upload can take a minute to appear in the index.
           for attempt in 1 2 3 4 5 6 7 8 9 10; do
-            if uv pip install --quiet --no-cache --prerelease allow \
-                 --index-url "$INDEX" --extra-index-url https://pypi.org/simple/ \
-                 --index-strategy unsafe-best-match "fastapi-locale==$VERSION"; then
+            if uv pip install --quiet --no-cache --prerelease allow "fastapi-locale==$VERSION"; then
               break
             fi
             if [[ $attempt == 10 ]]; then
-              echo "::error::fastapi-locale $VERSION did not appear on $INDEX"
+              echo "::error::fastapi-locale $VERSION did not appear on PyPI"
               exit 1
             fi
             sleep 30
