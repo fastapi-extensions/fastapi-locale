@@ -61,5 +61,9 @@ with 300 routes takes about 1.5 ms to translate.
 ## Turning it off
 
 ```python
-LocaleConfig(default_locale="en", supported_locales=["en", "de"], localize_openapi=False)
+LocaleConfig(
+    default_locale="en",
+    supported_locales=["en", "de"],
+    localize_openapi=False,
+)
 ```
