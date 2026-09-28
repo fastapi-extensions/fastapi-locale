@@ -6,15 +6,15 @@ design decision and test can be traced back to a need.
 
 | Area | Document | Status |
 | --- | --- | --- |
-| Research | [Existing libraries](research/existing-libraries.md) | Draft for review |
-| Requirements | [Software Requirements Specification](requirements/software-requirements-specification.md) | Draft for review |
-| Modeling | [Use case model](modeling/use-case-model.md) | Draft for review |
-| Modeling | [Domain model](modeling/domain-model.md) | Draft for review |
-| Architecture | [Software architecture](architecture/software-architecture.md) | Draft for review |
-| Architecture | [Architecture decision records](adr/README.md) | Proposed |
-| Design | [Detailed design](design/detailed-design.md) | Draft for review |
-| Verification | [Test plan](testing/test-plan.md) | Draft for review |
-| Development | [Development guide](development/development-guide.md) | Draft for review |
+| Research | [Existing libraries](research/existing-libraries.md) | Approved |
+| Requirements | [Software Requirements Specification](requirements/software-requirements-specification.md) | Approved |
+| Modeling | [Use case model](modeling/use-case-model.md) | Approved |
+| Modeling | [Domain model](modeling/domain-model.md) | Approved |
+| Architecture | [Software architecture](architecture/software-architecture.md) | Approved |
+| Architecture | [Architecture decision records](adr/README.md) | Accepted, except ADR-0009 |
+| Design | [Detailed design](design/detailed-design.md) | Approved |
+| Verification | [Test plan](testing/test-plan.md) | Approved |
+| Development | [Development guide](development/development-guide.md) | Approved |
 
 User-facing documentation (quick start, guides, API reference) is in the same site, under the user guide.
 

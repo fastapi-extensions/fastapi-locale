@@ -1,6 +1,7 @@
 # ADR-0006: Key validation messages on the Pydantic error type
 
-- Status: Proposed
+- Status: Accepted
+- Accepted: 2026-09-28
 - Date: 2026-09-26
 
 ## Context

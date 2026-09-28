@@ -1,6 +1,7 @@
 # ADR-0005: Lazy text as a dedicated Pydantic-aware type
 
-- Status: Proposed
+- Status: Accepted
+- Accepted: 2026-09-28
 - Date: 2026-09-26
 
 ## Context

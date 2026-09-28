@@ -4,10 +4,10 @@
 | --- | --- |
 | Project | fastapi-locale (working name) |
 | Document | Software Requirements Specification (SRS) |
-| Version | 0.2 |
-| Status | Draft for review |
+| Version | 1.0 |
+| Status | Approved |
 | Owner | Kapil Dagur |
-| Last updated | 2026-09-26 |
+| Last updated | 2026-09-28 |
 
 ## 1. Introduction
 
@@ -268,12 +268,12 @@ Each requirement is verified by at least one of: unit test, integration test aga
 application, end-to-end test through a real ASGI server, benchmark, or review. The traceability matrix
 that links requirement IDs to tests is kept in the test plan.
 
-## 7. Open issues
+## 7. Resolved issues
 
-| ID | Question | Notes |
+| ID | Question | Resolution |
 | --- | --- | --- |
-| OI-01 | Minimum Python version | Python 3.10 reaches end of life in October 2026. Proposed: 3.11. |
-| OI-02 | License | MIT or Apache-2.0. fastapi-tenancy uses one of these; matching it keeps the organization consistent. |
-| OI-03 | Package name | fastapi-locale, fastapi-intl or fastapi-gettext. Check availability on PyPI again before the first upload. |
-| OI-04 | Languages shipped for error messages | Proposed first set: Hindi, Spanish, French, German, Portuguese (Brazil). Others by community contribution. |
+| OI-01 | Minimum Python version | Python 3.11. Python 3.10 reaches end of life in October 2026. |
+| OI-02 | License | MIT, the same as fastapi-tenancy. |
+| OI-03 | Package name | `fastapi-locale`, free on PyPI as of 2026-09-28. |
+| OI-04 | Languages shipped for error messages | German, Spanish, French, Hindi and Portuguese (Brazil). Others by community contribution. |
 | OI-05 | User preference and 422 errors | Resolved by [ADR-0004](../adr/0004-middleware-resolves-dependencies-refine.md): dependencies run before body validation, so a dependency that calls `set_locale()` also sets the language of 422 errors. |

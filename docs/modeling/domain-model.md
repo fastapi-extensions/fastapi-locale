@@ -3,10 +3,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Domain model |
-| Version | 0.1 |
-| Status | Draft for review |
+| Version | 1.0 |
+| Status | Approved |
 | Owner | Kapil Dagur |
-| Last updated | 2026-09-26 |
+| Last updated | 2026-09-28 |
 
 ## 1. Purpose
 

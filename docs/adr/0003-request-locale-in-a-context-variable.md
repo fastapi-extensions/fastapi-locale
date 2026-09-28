@@ -1,6 +1,7 @@
 # ADR-0003: Hold the request locale in a context variable with a per-request holder
 
-- Status: Proposed
+- Status: Accepted
+- Accepted: 2026-09-28
 - Date: 2026-09-26
 
 ## Context

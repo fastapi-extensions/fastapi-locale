@@ -3,10 +3,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Detailed design |
-| Version | 0.1 |
-| Status | Draft for review |
+| Version | 1.0 |
+| Status | Approved |
 | Owner | Kapil Dagur |
-| Last updated | 2026-09-26 |
+| Last updated | 2026-09-28 |
 
 ## 1. Purpose
 
@@ -388,7 +388,7 @@ Logger name: `fastapi_locale`. Message parameters and header values are never lo
 
 | Dependency | Supported range | Notes |
 | --- | --- | --- |
-| Python | 3.11 and later (OI-01) | `tomllib` in the standard library is used by the CLI. |
+| Python | 3.11 and later (see SRS section 7) | `tomllib` in the standard library is used by the CLI. |
 | FastAPI | versions within upstream support; lower bound set by the CI matrix | |
 | Pydantic | 2.x | v1 is out of scope. |
 | Babel | 2.12 and later | |
