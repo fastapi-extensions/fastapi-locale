@@ -7,22 +7,45 @@ strict: true
 
 theme:
   name: material
+  icon:
+    logo: material/translate
+  favicon: assets/favicon.svg
   features:
+    - content.code.annotate
     - content.code.copy
+    - content.tabs.link
+    - navigation.footer
+    - navigation.indexes
     - navigation.sections
+    - navigation.tabs
     - navigation.top
+    - search.highlight
     - search.suggest
+    - toc.follow
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
+      primary: indigo
+      accent: teal
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
+      primary: indigo
+      accent: teal
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+
+copyright: Copyright &copy; 2026 fastapi-locale contributors. MIT License.
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/fastapi-extensions/fastapi-locale
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/fastapi-locale/
 
 exclude_docs: |
   diagrams/*.puml
@@ -30,11 +53,21 @@ exclude_docs: |
 
 markdown_extensions:
   - admonition
+  - attr_list
+  - md_in_html
   - tables
   - toc:
       permalink: true
-  - pymdownx.highlight
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: ["."]
+      check_paths: true
   - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
 
 plugins:
   - search
@@ -46,17 +79,41 @@ plugins:
             docstring_style: google
             show_signature_annotations: true
             separate_signature: true
+            show_source: false
+            show_root_heading: true
+            show_root_full_path: false
+            show_symbol_type_heading: true
+            members_order: source
+            signature_crossrefs: true
 
 nav:
   - Home: index.md
+  - Getting started:
+      - Installation: getting-started/installation.md
+      - Quick start: getting-started/quickstart.md
+      - Tutorial: getting-started/tutorial.md
   - User guide:
-      - Getting started: guide/getting-started.md
+      - Configuration: guide/configuration.md
       - Translating messages: guide/translating.md
+      - Lazy text: guide/lazy-text.md
       - Choosing the locale: guide/locale-resolution.md
+      - The user's saved language: guide/user-language.md
       - Validation errors: guide/validation-errors.md
+      - API documentation: guide/api-documentation.md
       - Testing: guide/testing.md
       - Command line tool: guide/command-line.md
-  - API reference: reference.md
+      - Deployment: guide/deployment.md
+      - Troubleshooting: guide/troubleshooting.md
+      - Migrating: guide/migration.md
+  - API reference:
+      - Setup: reference/setup.md
+      - Translation: reference/translation.md
+      - Locale context: reference/context.md
+      - Lazy text: reference/lazy.md
+      - Dependencies: reference/dependencies.md
+      - Locale sources: reference/sources.md
+      - Errors and exceptions: reference/errors.md
+      - Testing: reference/testing.md
   - Project documents:
       - Overview: project-documents.md
       - Existing libraries: research/existing-libraries.md
@@ -65,7 +122,7 @@ nav:
       - Domain model: modeling/domain-model.md
       - Architecture: architecture/software-architecture.md
       - Decisions:
-          - Index: adr/README.md
+          - adr/README.md
           - ADR-0001: adr/0001-record-architecture-decisions.md
           - ADR-0002: adr/0002-gettext-catalogs-through-babel.md
           - ADR-0003: adr/0003-request-locale-in-a-context-variable.md
@@ -79,3 +136,8 @@ nav:
       - Detailed design: design/detailed-design.md
       - Test plan: testing/test-plan.md
       - Development guide: development/development-guide.md
+  - About:
+      - Changelog: about/changelog.md
+      - Contributing: about/contributing.md
+      - Security: about/security.md
+      - License: about/license.md

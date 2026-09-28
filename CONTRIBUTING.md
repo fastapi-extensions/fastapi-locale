@@ -5,12 +5,15 @@ Thanks for helping. Bug reports, translations, documentation and code are all we
 ## Before you start
 
 - For anything larger than a small fix, open an issue first so we can agree on the approach.
-- Design decisions are recorded in [docs/adr](docs/adr/README.md). If your change goes against one,
-  propose a new ADR in the same pull request.
+- Design decisions are recorded in
+  [docs/adr](https://github.com/fastapi-extensions/fastapi-locale/blob/main/docs/adr/README.md).
+  If your change goes against one, propose a new ADR in the same pull request.
 
 ## Set up
 
-See the [development guide](docs/development/development-guide.md). In short:
+See the
+[development guide](https://github.com/fastapi-extensions/fastapi-locale/blob/main/docs/development/development-guide.md).
+In short:
 
 ```sh
 make dev         # locked environment and git hooks
