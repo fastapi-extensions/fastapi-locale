@@ -6,6 +6,10 @@ All notable changes are listed here. The format follows
 
 ## [Unreleased]
 
+## [0.1.0rc1] - 2026-09-28
+
+First release candidate. Installs only with `pip install --pre fastapi-locale` or an exact version.
+
 ### Added
 
 - Per-request locale from query parameter, cookie and `Accept-Language`, with RFC 4647 matching and

@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 # Project metadata
 [project]
 name = "fastapi-locale"
-version = "0.1.0.dev0"
+version = "0.1.0rc1"
 description = "Internationalization for FastAPI: gettext catalogs, per-request locales, lazy text and localized validation errors."
 readme = "README.md"
 license = "MIT"
