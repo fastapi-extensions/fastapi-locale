@@ -83,7 +83,9 @@ def extract(settings: Settings, out: TextIO) -> Report:
     catalog = extract_catalog(settings)
     settings.template.parent.mkdir(parents=True, exist_ok=True)
     _write_po(settings.template, catalog)
-    out.write(f"wrote {_show(settings, settings.template)} ({len(catalog)} messages)\n")
+    count = len(catalog)
+    noun = "message" if count == 1 else "messages"
+    out.write(f"wrote {_show(settings, settings.template)} ({count} {noun})\n")
     return Report()
 
 

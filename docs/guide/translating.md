@@ -27,27 +27,10 @@ In plural functions, `n` is available as `{n}`. Only `{name}` is substituted; at
 `{user.email}` is left as written, so a translation can never read data it was not given. Write `{{` and
 `}}` for literal braces.
 
-## Lazy text
+## Text defined at import time
 
-Text defined at import time must be translated later, when the request's locale is known:
-
-```python
-from fastapi_locale import LazyText, gettext_lazy
-
-ITEM_NOT_FOUND = gettext_lazy("Item not found")
-
-
-class Order(BaseModel):
-    status: LazyText = gettext_lazy("Pending")
-
-
-raise HTTPException(status_code=404, detail=ITEM_NOT_FOUND)
-```
-
-Lazy text is rendered when the response is serialized. Type model fields that hold it as `LazyText`, not
-`str`; Pydantic rejects it in a `str` field. The field still appears as a string in OpenAPI.
-
-`gettext_noop("...")` marks text for extraction without translating it.
+Module-level constants, default values of model fields and shared error messages are created before any
+request exists. Use [lazy text](lazy-text.md) for them.
 
 ## Another locale for a block
 
