@@ -8,7 +8,7 @@ All notable changes are listed here. The format follows
 
 ## [0.1.0rc1] - 2026-09-28
 
-First release candidate, published to TestPyPI to verify the release pipeline.
+First release candidate. Installs only with `pip install --pre fastapi-locale` or an exact version.
 
 ### Added
 
