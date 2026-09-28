@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Document | Development guide |
-| Version | 1.0 |
+| Version | 1.1 |
 | Status | Approved |
 | Owner | Kapil Dagur |
 | Last updated | 2026-09-28 |
@@ -103,15 +103,56 @@ pull requests.
 
 ## 8. Releasing
 
-1. Update `version` in `pyproject.toml` and add a `CHANGELOG.md` section for it.
-2. Merge to `main` with CI green.
-3. Tag `vX.Y.Z` (or `vX.Y.ZrcN` for a pre-release) and push the tag.
+### One-time setup
+
+These steps need account access and are done once, by a maintainer.
+
+**PyPI trusted publishing.** The project does not exist on PyPI before the first upload, so add a
+*pending* publisher on both indexes (Account settings, Publishing, "Add a new pending publisher"):
+
+| Field | pypi.org | test.pypi.org |
+| --- | --- | --- |
+| PyPI project name | `fastapi-locale` | `fastapi-locale` |
+| Owner | `fastapi-extensions` | `fastapi-extensions` |
+| Repository name | `fastapi-locale` | `fastapi-locale` |
+| Workflow name | `release.yml` | `release.yml` |
+| Environment name | `pypi` | `testpypi` |
+
+No API token is created or stored anywhere.
+
+**GitHub environments.** Already configured: `testpypi` and `pypi` accept deployments only from `v*`
+tags, and `pypi` waits for a maintainer's approval before publishing.
+
+**Read the Docs.** Import `fastapi-extensions/fastapi-locale` at readthedocs.org. The build is defined by
+`.readthedocs.yaml`; enable "Build pull requests" so each pull request gets a preview.
+
+### Release checklist
+
+1. Native speakers have reviewed any new or changed built-in translations.
+2. `version` in `pyproject.toml` is updated, and `CHANGELOG.md` has a section `## [X.Y.Z]` with the date;
+   the `Unreleased` entries move into it.
+3. The change is merged to `main` through a pull request with every required check green.
+4. For a pre-release, tag `vX.Y.ZrcN` first and check the package on TestPyPI:
+   `uv pip install -i https://test.pypi.org/simple/ fastapi-locale==X.Y.ZrcN`.
+5. Tag the release and push the tag:
+
+    ```sh
+    git tag -a vX.Y.Z -m "fastapi-locale X.Y.Z"
+    git push origin vX.Y.Z
+    ```
+
+6. Approve the `pypi` deployment in the Actions tab when the workflow asks.
 
 The release workflow checks the tag against `pyproject.toml` and the changelog, runs the tests, builds and
-inspects the wheel, publishes with PyPI trusted publishing (TestPyPI for pre-releases) and creates the
-GitHub release from the changelog section.
+inspects the wheel, publishes with trusted publishing and creates the GitHub release from the changelog
+section.
 
-Before the first release, native speakers should review the built-in translations.
+### Branch protection
+
+`main` requires a pull request and every CI check (lint, types, layering, security, the test matrix, the
+lowest dependency versions, macOS, Windows, the performance budget, and the docs). History is linear and
+force pushes are blocked. When CI jobs are renamed, update the required checks in the repository
+settings.
 
 ## 9. Commits
 
