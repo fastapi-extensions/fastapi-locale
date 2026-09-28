@@ -19,12 +19,13 @@ from babel.messages.pofile import read_po, write_po
 
 from fastapi_locale._catalog import BUILTIN_DIRECTORY, BUILTIN_DOMAIN
 from fastapi_locale._errors_catalog import TEMPLATES
+from fastapi_locale._openapi import OPENAPI_CONTEXT, OPENAPI_MESSAGES
 
 if TYPE_CHECKING:
     from pathlib import Path
 
 TEMPLATE_PATH = BUILTIN_DIRECTORY / f"{BUILTIN_DOMAIN}.pot"
-HEADER = "Built-in validation error messages of fastapi-locale."
+HEADER = "Built-in messages of fastapi-locale: validation errors and FastAPI's OpenAPI text."
 WIDTH = 100
 BUGS_ADDRESS = "https://github.com/fastapi-extensions/fastapi-locale/issues"
 
@@ -40,6 +41,8 @@ def build_template() -> Catalog:
     for template in sorted(TEMPLATES.values(), key=lambda t: t.type):
         msgid = template.message if template.plural is None else (template.message, template.plural)
         catalog.add(msgid, context=template.type)
+    for message in OPENAPI_MESSAGES:
+        catalog.add(message, context=OPENAPI_CONTEXT)
     return catalog
 
 

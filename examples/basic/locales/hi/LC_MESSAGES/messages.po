@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-26 20:15+0530\n"
+"POT-Creation-Date: 2026-09-28 22:04+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: hi\n"
@@ -19,18 +19,34 @@ msgstr ""
 "Generated-By: Babel 2.18.0\n"
 
 #: app.py:35
+msgid "Inventory"
+msgstr "इन्वेंटरी"
+
+#: app.py:36
+msgid "A small inventory API that answers in your language."
+msgstr "एक छोटा इन्वेंटरी API जो आपकी भाषा में जवाब देता है।"
+
+#: app.py:40
 msgid "Item not found"
 msgstr "आइटम नहीं मिला"
 
-#: app.py:47
+#: app.py:45
+msgid "Display name of the item"
+msgstr "आइटम का प्रदर्शित नाम"
+
+#: app.py:52
 msgid "In stock"
 msgstr "स्टॉक में है"
 
-#: app.py:62
+#: app.py:65
 msgid "Welcome to the inventory"
 msgstr "इन्वेंटरी में आपका स्वागत है"
 
-#: app.py:77
+#: app.py:68
+msgid "Read an item"
+msgstr "एक आइटम पढ़ें"
+
+#: app.py:80
 #, python-brace-format
 msgid "{n} unit of {name} added"
 msgid_plural "{n} units of {name} added"

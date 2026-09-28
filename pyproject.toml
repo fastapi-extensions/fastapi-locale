@@ -184,6 +184,7 @@ source_modules = [
     "fastapi_locale._formatting",
     "fastapi_locale._context",
     "fastapi_locale._errors_catalog",
+    "fastapi_locale._openapi",
     "fastapi_locale.exceptions",
 ]
 forbidden_modules = ["fastapi", "starlette", "pydantic"]
@@ -200,9 +201,11 @@ source_modules = [
     "fastapi_locale._formatting",
     "fastapi_locale._context",
     "fastapi_locale._errors_catalog",
+    "fastapi_locale._openapi",
     "fastapi_locale.exceptions",
 ]
 forbidden_modules = [
+    "fastapi_locale.openapi",
     "fastapi_locale.config",
     "fastapi_locale.sources",
     "fastapi_locale.middleware",

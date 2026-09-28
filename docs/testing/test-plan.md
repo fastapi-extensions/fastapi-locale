@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Document | Test plan |
-| Version | 1.0 |
+| Version | 1.1 |
 | Status | Approved |
 | Owner | Kapil Dagur |
 | Last updated | 2026-09-28 |
@@ -129,6 +129,7 @@ A release can be tagged when, in addition:
 | DI-01 to DI-04 | | `test_setup.py`, `test_dependencies.py` | |
 | CLI-01 to CLI-04 | `test_cli_settings.py` | | CLI round trip |
 | TST-01, TST-02 | | `test_testing_helpers.py` | |
+| DOC-01 to DOC-05 | `test_openapi.py` | `test_openapi.py` | API documentation scenario |
 | NFR-01, NFR-02 | benchmark | | |
 | NFR-03, NFR-04 | `test_locale.py`, `test_accept_language.py` | `test_resolution.py` | |
 | NFR-05, NFR-06 | `test_formatting.py`, `test_translator.py` | | |
@@ -136,7 +137,7 @@ A release can be tagged when, in addition:
 | NFR-09 | `test_error_localizer.py` | | |
 | NFR-11 | coverage report in CI | | |
 
-Requirements planned after 0.1 (CAT-07, LOC-05, ERR-11, DOC, FMT) get tests when they are scheduled.
+Requirements planned after 0.1 (CAT-07, LOC-05, ERR-11, FMT) get tests when they are scheduled.
 
 ## 7. Test data
 

@@ -20,6 +20,7 @@ from fastapi_locale import (
     TranslatorDep,
     UnsupportedLocaleError,
     gettext_lazy,
+    gettext_noop,
     set_locale,
 )
 
@@ -30,7 +31,10 @@ i18n = Localization(
         catalog_dirs=[Path(__file__).parent / "locales"],
     )
 )
-app = FastAPI(title="Inventory")
+app = FastAPI(
+    title=gettext_noop("Inventory"),
+    description=gettext_noop("A small inventory API that answers in your language."),
+)
 i18n.install(app)
 
 ITEM_NOT_FOUND = gettext_lazy("Item not found")
@@ -38,7 +42,7 @@ ITEMS: dict[int, str] = {1: "Coffee", 2: "Tea"}
 
 
 class NewItem(BaseModel):
-    name: str = Field(min_length=3)
+    name: str = Field(min_length=3, description=gettext_noop("Display name of the item"))
     quantity: int = Field(gt=0)
 
 
@@ -61,7 +65,7 @@ async def welcome(tr: TranslatorDep, locale: LocaleDep) -> dict[str, str]:
     return {"message": tr.gettext("Welcome to the inventory"), "locale": locale.tag}
 
 
-@app.get("/items/{item_id}")
+@app.get("/items/{item_id}", summary=gettext_noop("Read an item"))
 async def read_item(item_id: int) -> Item:
     if item_id not in ITEMS:
         raise HTTPException(status_code=404, detail=ITEM_NOT_FOUND)

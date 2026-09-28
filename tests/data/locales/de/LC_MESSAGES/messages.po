@@ -34,3 +34,13 @@ msgstr "Artikel nicht gefunden"
 
 msgid "Pending"
 msgstr "Ausstehend"
+
+msgid "Item"
+msgstr "Artikel"
+
+msgctxt "openapi"
+msgid "Item"
+msgstr "Artikel (Schema)"
+
+msgid "Orders API"
+msgstr "Bestell-API"

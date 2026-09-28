@@ -17,6 +17,7 @@ from fastapi_locale._locale import Locale
 from fastapi_locale.exceptions import ConfigurationError
 from fastapi_locale.handlers import http_exception_handler, validation_exception_handler
 from fastapi_locale.middleware import LocaleMiddleware
+from fastapi_locale.openapi import localize_openapi
 from fastapi_locale.sources import default_sources, source_name, source_vary
 
 if TYPE_CHECKING:
@@ -109,6 +110,8 @@ class Localization:
         _set_handler(
             app, HTTPException, fastapi_handlers.http_exception_handler, http_exception_handler
         )
+        if self._config.localize_openapi:
+            localize_openapi(app)
         if get_process_default() is None:
             self.make_default()
 

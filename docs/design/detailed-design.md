@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Document | Detailed design |
-| Version | 1.0 |
+| Version | 1.1 |
 | Status | Approved |
 | Owner | Kapil Dagur |
 | Last updated | 2026-09-28 |
@@ -29,10 +29,12 @@ src/fastapi_locale/
     _formatting.py         named placeholder substitution
     _context.py            RequestLocale, get_locale, get_translator, set_locale, use_locale
     _errors_catalog.py     ErrorTemplate table, one entry per Pydantic error type
+    _openapi.py            translation of a generated OpenAPI schema
     sources.py             LocaleSource protocol and built-in sources
     middleware.py          LocaleMiddleware
     lazy.py                LazyText and the *_lazy functions
     handlers.py            validation and HTTP exception handlers, ErrorLocalizer
+    openapi.py             localize_openapi: per-locale schema served by FastAPI
     dependencies.py        LocaleDep, TranslatorDep
     localization.py        Localization
     testing.py             pytest marker and helpers
@@ -48,7 +50,7 @@ from `fastapi_locale`.
 ![Module dependencies](../diagrams/module-dependencies.svg)
 
 1. Core modules (`_locale`, `_accept_language`, `_catalog`, `_translator`, `_formatting`, `_context`,
-   `_errors_catalog`, `exceptions`) never import FastAPI, Starlette or Pydantic.
+   `_errors_catalog`, `_openapi`, `exceptions`) never import FastAPI, Starlette or Pydantic.
    `config` belongs to the integration layer because it holds locale sources, which read Starlette's
    `HTTPConnection`. The core receives plain values from it.
 2. Core modules never import integration modules.
@@ -310,6 +312,18 @@ LocalizationError
 
 All carry a message that names what to change. None of them is raised because of request input.
 
+### 4.17 OpenAPI localization
+
+`translate_schema(schema, translator, builtin_domain)` returns a copy of the schema. It translates string
+values of `title`, `summary` and `description` keys at any depth and never touches values under
+`default`, `example`, `examples`, `const` or `enum`, which are application data. Each text is looked up
+with `pgettext("openapi", text)`, then `gettext(text)`, then in the built-in catalog under the `openapi`
+context, which holds FastAPI's own strings (`OPENAPI_MESSAGES`). The first result that differs from the
+text wins.
+
+`localize_openapi(app)` replaces `app.openapi` with a function that asks FastAPI for the schema once
+and keeps one translated copy per locale. `install()` calls it unless `localize_openapi=False`.
+
 ## 5. Public API example
 
 ```python
@@ -405,5 +419,6 @@ Logger name: `fastapi_locale`. Message parameters and header values are never lo
 | DI | 4.14, 4.15 |
 | CLI | 7 |
 | TST | 6 |
+| DOC | 4.17 |
 | NFR-03 to NFR-06 | 4.2, 4.4, 4.8 |
 | NFR-10 | 8 |

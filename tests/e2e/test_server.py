@@ -66,3 +66,13 @@ async def test_parallel_requests_keep_their_own_language(server: str) -> None:
         )
     for lang, response in zip(languages, responses, strict=True):
         assert response.json()["message"] == WELCOME[lang]
+
+
+def test_api_documentation_follows_the_locale(server: str) -> None:
+    schema = httpx.get(f"{server}/openapi.json", headers={"Accept-Language": "de"}).json()
+    assert schema["info"]["title"] == "Lager"
+    operation = schema["paths"]["/items/{item_id}"]["get"]
+    assert operation["summary"] == "Einen Artikel lesen"
+    assert operation["responses"]["422"]["description"] == "Validierungsfehler"
+    english = httpx.get(f"{server}/openapi.json").json()
+    assert english["info"]["title"] == "Inventory"

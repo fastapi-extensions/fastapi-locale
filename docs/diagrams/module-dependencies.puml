@@ -13,6 +13,7 @@ package "Integration layer" as L2 {
   [sources] as Src
   [handlers] as Hdl
   [dependencies] as Dep
+  [openapi] as Oa
   [lazy] as Lazy
   [testing] as Tst
   [config] as Cfg
@@ -23,6 +24,7 @@ package "Core layer (no FastAPI, Starlette or Pydantic imports)" as L1 {
   [_translator] as Tr
   [_catalog] as Cat
   [_errors_catalog] as Err
+  [_openapi] as Oac
   [_formatting] as Fmt
   [_accept_language] as Al
   [_locale] as Lc
@@ -38,6 +40,9 @@ Init --> Lazy
 Init --> Dep
 Loc --> Mw
 Loc --> Hdl
+Loc --> Oa
+Oa --> Oac
+Oa --> Ctx
 Loc --> Cat
 Loc --> Cfg
 Mw --> Src

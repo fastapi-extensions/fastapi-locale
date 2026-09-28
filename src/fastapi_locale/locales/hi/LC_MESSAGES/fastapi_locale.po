@@ -31,6 +31,10 @@ msgstr ""
 "JSON से वैलिडेशन करते समय `{method_name}` की जाँच नहीं हो सकती, इसके बजाय JsonOrPython वैलिडेटर "
 "का उपयोग करें"
 
+msgctxt "openapi"
+msgid "Context"
+msgstr "संदर्भ"
+
 #, python-brace-format
 msgctxt "bytes_invalid_encoding"
 msgid "Data should be valid {encoding}: {encoding_error}"
@@ -87,6 +91,14 @@ msgid_plural "Decimal input should have no more than {whole_digits} digits befor
 msgstr[0] "Decimal इनपुट में दशमलव बिंदु से पहले {whole_digits} से अधिक अंक नहीं होना चाहिए"
 msgstr[1] "Decimal इनपुट में दशमलव बिंदु से पहले {whole_digits} से अधिक अंक नहीं होने चाहिए"
 
+msgctxt "openapi"
+msgid "Detail"
+msgstr "विवरण"
+
+msgctxt "openapi"
+msgid "Error Type"
+msgstr "त्रुटि का प्रकार"
+
 #, python-brace-format
 msgctxt "get_attribute_error"
 msgid "Error extracting attribute: {error}"
@@ -112,6 +124,10 @@ msgstr "फ़ील्ड आवश्यक है"
 msgctxt "multiple_argument_values"
 msgid "Got multiple values for argument"
 msgstr "आर्ग्युमेंट के लिए एक से अधिक मान मिले"
+
+msgctxt "openapi"
+msgid "Input"
+msgstr "इनपुट"
 
 msgctxt "none_required"
 msgid "Input should be None"
@@ -393,6 +409,14 @@ msgctxt "invalid_key"
 msgid "Keys should be strings"
 msgstr "कुंजियाँ string होनी चाहिए"
 
+msgctxt "openapi"
+msgid "Location"
+msgstr "स्थान"
+
+msgctxt "openapi"
+msgid "Message"
+msgstr "संदेश"
+
 msgctxt "missing_argument"
 msgid "Missing required argument"
 msgstr "आवश्यक आर्ग्युमेंट नहीं दिया गया"
@@ -440,6 +464,10 @@ msgstr[1] "string में अधिकतम {max_length} अक्षर ह�
 msgctxt "string_pattern_mismatch"
 msgid "String should match pattern '{pattern}'"
 msgstr "string पैटर्न '{pattern}' से मेल खानी चाहिए"
+
+msgctxt "openapi"
+msgid "Successful Response"
+msgstr "सफल प्रतिक्रिया"
 
 msgctxt "default_factory_not_called"
 msgid "The default factory uses validated data, but at least one validation error occurred"
@@ -491,6 +519,10 @@ msgstr "अनपेक्षित कीवर्ड आर्ग्युम�
 msgctxt "unexpected_positional_argument"
 msgid "Unexpected positional argument"
 msgstr "अनपेक्षित positional आर्ग्युमेंट"
+
+msgctxt "openapi"
+msgid "Validation Error"
+msgstr "वैलिडेशन त्रुटि"
 
 #, python-brace-format
 msgctxt "value_error"

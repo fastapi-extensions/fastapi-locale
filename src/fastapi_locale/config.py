@@ -32,6 +32,7 @@ class LocaleConfig:
     source_locale: str = "en"
     sources: Sequence[LocaleSourceLike] | None = None
     builtin_error_messages: bool = True
+    localize_openapi: bool = True
 
     def __post_init__(self) -> None:
         if isinstance(self.supported_locales, str):
