@@ -45,6 +45,7 @@ from fastapi_locale.lazy import (
 )
 from fastapi_locale.localization import Localization, Resolution
 from fastapi_locale.middleware import LocaleMiddleware
+from fastapi_locale.openapi import localize_openapi
 from fastapi_locale.sources import (
     AcceptLanguageSource,
     CookieSource,
@@ -84,6 +85,7 @@ __all__ = [
     "gettext_noop",
     "http_exception_handler",
     "localize_errors",
+    "localize_openapi",
     "ngettext",
     "ngettext_lazy",
     "npgettext",

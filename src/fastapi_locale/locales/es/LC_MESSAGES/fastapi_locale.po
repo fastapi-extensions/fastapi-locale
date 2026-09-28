@@ -29,6 +29,10 @@ msgctxt "needs_python_object"
 msgid "Cannot check `{method_name}` when validating from json, use a JsonOrPython validator instead"
 msgstr "No se puede comprobar `{method_name}` al validar desde JSON; use un validador JsonOrPython"
 
+msgctxt "openapi"
+msgid "Context"
+msgstr "Contexto"
+
 #, python-brace-format
 msgctxt "bytes_invalid_encoding"
 msgid "Data should be valid {encoding}: {encoding_error}"
@@ -87,6 +91,14 @@ msgid_plural "Decimal input should have no more than {whole_digits} digits befor
 msgstr[0] "La entrada decimal no debe tener más de {whole_digits} dígito antes del separador decimal"
 msgstr[1] "La entrada decimal no debe tener más de {whole_digits} dígitos antes del separador decimal"
 
+msgctxt "openapi"
+msgid "Detail"
+msgstr "Detalle"
+
+msgctxt "openapi"
+msgid "Error Type"
+msgstr "Tipo de error"
+
 #, python-brace-format
 msgctxt "get_attribute_error"
 msgid "Error extracting attribute: {error}"
@@ -112,6 +124,10 @@ msgstr "Campo obligatorio"
 msgctxt "multiple_argument_values"
 msgid "Got multiple values for argument"
 msgstr "Se recibieron varios valores para el argumento"
+
+msgctxt "openapi"
+msgid "Input"
+msgstr "Entrada"
 
 msgctxt "none_required"
 msgid "Input should be None"
@@ -394,6 +410,14 @@ msgctxt "invalid_key"
 msgid "Keys should be strings"
 msgstr "Las claves deben ser cadenas"
 
+msgctxt "openapi"
+msgid "Location"
+msgstr "Ubicación"
+
+msgctxt "openapi"
+msgid "Message"
+msgstr "Mensaje"
+
 msgctxt "missing_argument"
 msgid "Missing required argument"
 msgstr "Falta un argumento obligatorio"
@@ -441,6 +465,10 @@ msgstr[1] "La cadena debe tener como máximo {max_length} caracteres"
 msgctxt "string_pattern_mismatch"
 msgid "String should match pattern '{pattern}'"
 msgstr "La cadena debe coincidir con el patrón '{pattern}'"
+
+msgctxt "openapi"
+msgid "Successful Response"
+msgstr "Respuesta correcta"
 
 msgctxt "default_factory_not_called"
 msgid "The default factory uses validated data, but at least one validation error occurred"
@@ -492,6 +520,10 @@ msgstr "Argumento con nombre inesperado"
 msgctxt "unexpected_positional_argument"
 msgid "Unexpected positional argument"
 msgstr "Argumento posicional inesperado"
+
+msgctxt "openapi"
+msgid "Validation Error"
+msgstr "Error de validación"
 
 #, python-brace-format
 msgctxt "value_error"

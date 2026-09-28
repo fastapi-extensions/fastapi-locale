@@ -4,7 +4,7 @@
 | --- | --- |
 | Project | fastapi-locale (working name) |
 | Document | Software Requirements Specification (SRS) |
-| Version | 1.0 |
+| Version | 1.1 |
 | Status | Approved |
 | Owner | Kapil Dagur |
 | Last updated | 2026-09-28 |
@@ -223,9 +223,11 @@ requirement: 0.1 is the first public release, "later" is after 0.1.
 
 | ID | Requirement | Priority | Release |
 | --- | --- | --- | --- |
-| DOC-01 | The OpenAPI schema shall be available per supported locale, with titles, summaries and descriptions translated. | S | later |
-| DOC-02 | Each locale's schema shall be generated once and cached. | S | later |
-| DOC-03 | Swagger UI and ReDoc shall be able to show the documentation for a chosen locale. | C | later |
+| DOC-01 | The OpenAPI schema shall be available per supported locale, with titles, summaries and descriptions translated. | S | 0.1 |
+| DOC-02 | Each locale's schema shall be generated once and cached. | S | 0.1 |
+| DOC-03 | Swagger UI and ReDoc shall be able to show the documentation for a chosen locale. | C | 0.1 |
+| DOC-04 | FastAPI's own schema text (response and error schema descriptions) shall be translated by the built-in catalogs. | S | 0.1 |
+| DOC-05 | Applications shall be able to turn schema localization off. | S | 0.1 |
 
 ### 3.10 Templates and formatting (FMT)
 

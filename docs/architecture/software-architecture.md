@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Document | Software architecture description |
-| Version | 1.0 |
+| Version | 1.1 |
 | Status | Approved |
 | Owner | Kapil Dagur |
 | Last updated | 2026-09-28 |
@@ -116,11 +116,18 @@ Sources are asked in the configured order; the first candidate that matches a su
 Matching is RFC 4647 lookup. The `Accept-Language` source parses the header as RFC 9110 defines it, drops
 malformed members and refused (`q=0`) ranges, and caps the input length.
 
-### 5.6 Message lookup
+### 5.6 API documentation
+
+FastAPI builds the OpenAPI schema once. The first request for a locale, usually Swagger UI fetching
+`/openapi.json` with the browser's `Accept-Language`, translates the values of `title`, `summary` and
+`description` keys and caches the result for that locale (ADR-0009). Lookup tries the `openapi` message
+context, then the plain message, then the library's catalog for FastAPI's own text.
+
+### 5.7 Message lookup
 
 ![Message lookup activity](../diagrams/activity-message-lookup.svg)
 
-### 5.7 Translation workflow
+### 5.8 Translation workflow
 
 ![Translation workflow](../diagrams/activity-catalog-workflow.svg)
 
@@ -195,7 +202,7 @@ table. Each message lookup is a dictionary lookup along a short, precomputed fal
 | R-02 | pydantic-core adds or renames error types. | High | Low | Test lists all types and fails on a missing template; unknown types fall back to Pydantic's text. |
 | R-03 | `list_all_errors` is not public Pydantic API. | Medium | Low | Used only in tests. |
 | R-04 | Some `ctx` values are pre-rendered English (`literal_error`). | Certain | Low | Documented limit; revisit with list formatting (FMT-02). |
-| R-05 | Translating the finished OpenAPI schema may miss or wrongly translate text. | Medium | Medium | Prototype before building DOC-01 (ADR-0009). |
+| R-05 | Translating the finished OpenAPI schema may miss or wrongly translate text. | Medium | Low | Prototype confirmed the approach; the `openapi` message context lets translators separate schema text, and data keys such as `default` are never touched (ADR-0009). |
 | R-06 | A user dependency that fails its own validation does not run, so its locale is not applied. | Low | Low | Documented limit (ADR-0004). |
 
 ## 10. Decisions

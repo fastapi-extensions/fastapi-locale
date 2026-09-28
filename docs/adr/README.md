@@ -14,5 +14,5 @@ later record supersedes it instead.
 | [0006](0006-validation-messages-keyed-on-error-type.md) | Key validation messages on the Pydantic error type | Accepted |
 | [0007](0007-named-placeholder-formatting.md) | Named placeholder formatting instead of str.format | Accepted |
 | [0008](0008-load-catalogs-at-setup.md) | Load catalogs when the application is set up | Accepted |
-| [0009](0009-localized-openapi.md) | Localize OpenAPI by translating the generated schema | Proposed |
+| [0009](0009-localized-openapi.md) | Localize OpenAPI by translating the generated schema | Accepted |
 | [0010](0010-toolchain.md) | Project toolchain | Accepted |

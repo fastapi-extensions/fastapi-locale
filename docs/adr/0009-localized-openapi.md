@@ -1,6 +1,7 @@
 # ADR-0009: Localize OpenAPI by translating the generated schema
 
-- Status: Proposed (to be confirmed by a prototype before DOC-01 is built)
+- Status: Accepted
+- Accepted: 2026-09-28
 - Date: 2026-09-26
 
 ## Context
@@ -20,18 +21,39 @@ caches one schema per application.
    walks the schema and translates the values of `title`, `summary` and `description` keys through the
    catalog, then caches the result.
 
+## Prototype results
+
+A prototype against FastAPI 0.141 on 2026-09-28 showed:
+
+- The app title and description, tag descriptions, operation summaries and descriptions, response
+  descriptions, field titles and descriptions, and model titles were all translated.
+- Swagger UI needs no changes: the browser sends `Accept-Language` when it fetches `/openapi.json`, the
+  middleware resolves the locale, and the response carries `Content-Language` and `Vary`.
+- Translating a 300-route schema (69 KB) took 1.5 ms, once per locale.
+- A model titled `Item` was translated because the application also used the msgid `Item` elsewhere.
+  `$ref` keys do not change, so nothing breaks, but translators need a way to tell the two apart.
+- FastAPI's own text ("Successful Response", "Validation Error", the field titles of its
+  `ValidationError` schema) needs translations the application should not have to write.
+- FastAPI takes route descriptions from docstrings, which gettext tools cannot extract.
+
 ## Decision
 
-Option 3 is proposed. It uses FastAPI's public output rather than its internals, and it covers route
-metadata, tags and model fields in one pass.
+Use option 3, with these refinements from the prototype:
+
+- Look up each text with the `openapi` message context first, then without context, then in the
+  library's built-in catalog, which ships FastAPI's own strings.
+- Never translate values under `default`, `example`, `examples`, `const` and `enum`.
+- Translate each locale once, on first use, and cache it.
+- On by default; `LocaleConfig(localize_openapi=False)` turns it off.
 
 ## Consequences
 
-- The schema endpoint and the docs pages gain a locale parameter (DOC-01 to DOC-03).
-- Identical English text is translated the same way everywhere in the schema. Context-specific text needs
-  distinct wording.
-- A prototype must confirm the approach against real applications before the work is scheduled.
+- The schema and the docs pages follow the request locale with no extra endpoints (DOC-01 to DOC-05).
+- Identical English text is translated the same way everywhere, unless the translator adds a
+  translation under the `openapi` context for schema text.
+- Descriptions written as docstrings stay in the source language; the user guide says to pass
+  `description=gettext_noop(...)` instead.
 
 ## Related requirements
 
-DOC-01, DOC-02, DOC-03
+DOC-01 to DOC-05

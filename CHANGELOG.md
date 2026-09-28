@@ -17,3 +17,5 @@ All notable changes are listed here. The format follows
 - `set_locale()` to apply a signed-in user's language for the rest of a request.
 - `LocaleDep` and `TranslatorDep` dependencies, `use_locale()`, and test helpers.
 - `fastapi-locale` command: extract, init, update, compile and check.
+- Localized OpenAPI schema: Swagger UI and ReDoc follow the request locale, with built-in
+  translations of FastAPI's own schema text. Turn off with `localize_openapi=False`.

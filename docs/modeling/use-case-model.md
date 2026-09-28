@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Document | Use case model |
-| Version | 1.0 |
+| Version | 1.1 |
 | Status | Approved |
 | Owner | Kapil Dagur |
 | Last updated | 2026-09-28 |
@@ -192,9 +192,29 @@ Alternate flows:
 
 ### UC-08 Read the API documentation in a chosen language
 
-Planned after the first release (DOC-01 to DOC-03). The client requests the OpenAPI schema or the docs
-page with a locale; the library returns a schema whose titles, summaries and descriptions are translated,
-generated once per locale and cached. The design is in ADR-0009.
+| Item | Description |
+| --- | --- |
+| Primary actor | API client (usually a person using Swagger UI or ReDoc) |
+| Preconditions | Schema localization is on (the default). The application marks its titles, summaries and descriptions with `gettext_noop`. |
+| Postconditions | The schema is in the resolved locale; `Content-Language` and `Vary` are set. |
+| Requirements | DOC-01 to DOC-05 |
+
+Main flow:
+
+1. The browser opens `/docs`; Swagger UI fetches `/openapi.json` and sends the browser's
+   `Accept-Language` (or the locale cookie).
+2. The library resolves the locale as in UC-01.
+3. The first request for that locale translates FastAPI's generated schema and caches it; later requests
+   get the cached copy.
+4. Swagger UI shows translated titles, summaries, descriptions and response texts.
+
+Alternate flows:
+
+- 3a. A text has no translation. It stays in the source language.
+- 3b. The route's description comes from its docstring. gettext tools cannot extract docstrings, so it
+  stays in the source language unless the route passes `description=gettext_noop(...)`.
+
+The design is in ADR-0009.
 
 ### UC-09 Verify catalogs are up to date
 

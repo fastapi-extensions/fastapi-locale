@@ -11,7 +11,7 @@ actor "CI pipeline" as CI <<system>>
 rectangle "fastapi-locale" {
   usecase "UC-01\nReceive a response in\nthe preferred language" as UC01
   usecase "UC-02\nReceive validation errors in\nthe preferred language" as UC02
-  usecase "UC-08\nRead API documentation\nin a chosen language" as UC08 #EEEEEE
+  usecase "UC-08\nRead API documentation\nin a chosen language" as UC08
   usecase "Resolve the\nrequest locale" as RES
   usecase "UC-05\nUse a signed-in user's\nsaved language" as UC05
   usecase "UC-03\nTranslate a message\nin application code" as UC03
@@ -37,7 +37,4 @@ UC06 <-- Dev
 UC06 <-- Tr
 UC09 <-- CI
 
-legend right
-  Grey use case: planned after the first release
-endlegend
 @enduml

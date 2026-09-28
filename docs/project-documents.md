@@ -11,7 +11,7 @@ design decision and test can be traced back to a need.
 | Modeling | [Use case model](modeling/use-case-model.md) | Approved |
 | Modeling | [Domain model](modeling/domain-model.md) | Approved |
 | Architecture | [Software architecture](architecture/software-architecture.md) | Approved |
-| Architecture | [Architecture decision records](adr/README.md) | Accepted, except ADR-0009 |
+| Architecture | [Architecture decision records](adr/README.md) | Accepted |
 | Design | [Detailed design](design/detailed-design.md) | Approved |
 | Verification | [Test plan](testing/test-plan.md) | Approved |
 | Development | [Development guide](development/development-guide.md) | Approved |
