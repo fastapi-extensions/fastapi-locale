@@ -1,5 +1,7 @@
 site_name: fastapi-locale
 site_description: Internationalization for FastAPI with gettext catalogs
+# Read the Docs sets the canonical URL of each version; local builds fall back to the latest one.
+site_url: !ENV [READTHEDOCS_CANONICAL_URL, "https://fastapi-locale.readthedocs.io/en/latest/"]
 repo_url: https://github.com/fastapi-extensions/fastapi-locale
 repo_name: fastapi-extensions/fastapi-locale
 edit_uri: edit/main/docs/
