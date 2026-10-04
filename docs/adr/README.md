@@ -20,3 +20,4 @@ later record supersedes it instead.
 | [0012](0012-language-level-matching.md) | Match another region of the language when lookup finds nothing | Accepted |
 | [0013](0013-cookie-source-is-opt-in.md) | Leave the cookie source out of the default sources | Accepted |
 | [0014](0014-validation-messages-without-a-translation.md) | Keep Pydantic's message when there is nothing to translate into | Accepted |
+| [0015](0015-format-site-assets-with-prettier.md) | Format the documentation site's own assets with Prettier | Accepted |

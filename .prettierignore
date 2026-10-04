@@ -1,0 +1,8 @@
+# Prettier formats only the documentation site's own HTML, CSS and JavaScript.
+# Everything else has its own formatter or is generated.
+*
+!docs/
+!docs/**/
+!docs/**/*.html
+!docs/**/*.css
+!docs/**/*.js

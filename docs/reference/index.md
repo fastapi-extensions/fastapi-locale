@@ -38,8 +38,8 @@ The wording of the built-in translations is not part of the API. It can be corre
 | [Setup](setup.md) | `Localization`, `LocaleConfig`, the middleware and OpenAPI localization |
 | [Translation](translation.md) | `gettext()` and the other translation functions, `Translator` |
 | [Locale context](context.md) | The active locale: reading it, changing it, `Locale`, `RequestLocale` |
-| [Lazy text](lazy.md) | `LazyText` and the `*_lazy` functions |
+| [Lazy text API](lazy.md) | `LazyText` and the `*_lazy` functions |
 | [Dependencies](dependencies.md) | `LocaleDep`, `TranslatorDep` |
 | [Locale sources](sources.md) | Where a request's locale comes from |
 | [Errors and exceptions](errors.md) | Exception handlers and the exceptions the library raises |
-| [Testing](testing.md) | The pytest plugin |
+| [Pytest plugin](testing.md) | The `locale` marker for tests |

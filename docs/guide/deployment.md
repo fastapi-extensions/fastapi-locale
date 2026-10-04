@@ -6,7 +6,7 @@ Commit the `.po` files and compile them when you build the application:
 
 ```yaml
 - run: uv run fastapi-locale check      # fail on stale or broken catalogs
-- run: uv run fastapi-locale compile    # write the .mo files the application loads
+- run: uv run fastapi-locale compile    # build the .mo files
 ```
 
 In a container image, compile in the build stage so the `.mo` files are part of the image:

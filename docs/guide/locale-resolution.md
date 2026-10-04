@@ -22,7 +22,11 @@ from fastapi_locale import (
 LocaleConfig(
     default_locale="en",
     supported_locales=["en", "de"],
-    sources=[QueryParamSource("hl"), CookieSource("lang"), AcceptLanguageSource()],
+    sources=[
+        QueryParamSource("hl"),
+        CookieSource("lang"),
+        AcceptLanguageSource(),
+    ],
 )
 ```
 

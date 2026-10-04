@@ -13,7 +13,9 @@ from pydantic import BaseModel, Field
 
 from fastapi_locale import LocaleConfig, Localization
 
-i18n = Localization(LocaleConfig(default_locale="en", supported_locales=["en", "de"]))
+i18n = Localization(
+    LocaleConfig(default_locale="en", supported_locales=["en", "de"])
+)
 app = FastAPI()
 i18n.install(app)
 

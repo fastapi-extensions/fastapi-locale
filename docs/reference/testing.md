@@ -1,4 +1,4 @@
-# Testing
+# Pytest plugin
 
 ::: fastapi_locale.testing
     options:

@@ -1,4 +1,4 @@
-# Lazy text
+# Lazy text API
 
 ::: fastapi_locale.LazyText
 

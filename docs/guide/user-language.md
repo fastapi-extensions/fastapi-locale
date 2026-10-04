@@ -14,7 +14,9 @@ from fastapi import Depends
 from fastapi_locale import UnsupportedLocaleError, set_locale
 
 
-async def current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> User:
+async def current_user(
+    token: Annotated[str, Depends(oauth2_scheme)],
+) -> User:
     user = await users.get_by_token(token)
     with suppress(UnsupportedLocaleError):
         set_locale(user.language)

@@ -84,7 +84,11 @@ Alternate flows:
 
 - 4a. The error `type` has no template (a custom error type). The handler keeps Pydantic's `msg`.
 - 4b. The application ships its own translation for the type. It takes priority over the built-in one.
-- 5a. The translated template names a placeholder that `ctx` does not have. The handler leaves the
+- 5a. No catalog translates the template in the active locale, as in the source language. The handler
+  keeps Pydantic's `msg`.
+- 5b. The error has no value in `ctx` for a placeholder of the template. The handler keeps Pydantic's
+  `msg`.
+- 5c. The translated template names a placeholder that `ctx` does not have. The handler leaves the
   placeholder as written and logs a warning. The response is still a 422.
 
 ### UC-03 Translate a message in application code
@@ -147,8 +151,8 @@ Main flow:
 
 Alternate flows:
 
-- 3a. The user's language is not supported. `set_locale` falls back through RFC 4647 lookup; if nothing
-  matches it raises `UnsupportedLocaleError`, which the application can catch and ignore.
+- 3a. The user's language is not supported, or the user has none. `set_locale` matches as in UC-01; if
+  nothing matches it raises `UnsupportedLocaleError`, which the application can catch and ignore.
 - 3b. Validation fails in a parameter of `current_user` itself, so the dependency never runs. The request
   keeps the locale resolved in step 1. This is a known limit, recorded in ADR-0004.
 
@@ -162,7 +166,8 @@ Alternate flows:
 
 Main flow:
 
-1. The developer runs `fastapi-locale extract` and the tool writes `messages.pot`.
+1. The developer runs `fastapi-locale extract` and the tool writes one template per domain,
+   `messages.pot` by default.
 2. For a new language the developer runs `fastapi-locale init --locale <tag>`; otherwise
    `fastapi-locale update` merges the template into every `.po` file.
 3. The translator translates the `.po` file in any gettext tool.

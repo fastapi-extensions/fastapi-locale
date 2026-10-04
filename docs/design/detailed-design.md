@@ -22,23 +22,23 @@ src/fastapi_locale/
     py.typed
     config.py              LocaleConfig
     exceptions.py          exception hierarchy
-    _locale.py             Locale value object, tag parsing, RFC 4647 truncation
+    _locale.py             Locale value object, tag parsing and truncation
     _accept_language.py    Accept-Language parsing
     _catalog.py            CatalogStore: loading, merging, fallback chains
     _translator.py         Translator
     _formatting.py         named placeholder substitution
-    _context.py            RequestLocale, get_locale, get_translator, set_locale, use_locale
-    _errors_catalog.py     ErrorTemplate table, one entry per Pydantic error type; ErrorLocalizer
+    _context.py            RequestLocale, get_locale, set_locale, use_locale
+    _errors_catalog.py     ErrorTemplate table and ErrorLocalizer
     _openapi.py            translation of a generated OpenAPI schema
     sources.py             LocaleSource protocol and built-in sources
     middleware.py          LocaleMiddleware
     lazy.py                LazyText and the *_lazy functions
     handlers.py            validation and HTTP exception handlers
-    openapi.py             localize_openapi: per-locale schema served by FastAPI
+    openapi.py             localize_openapi: the schema served per locale
     dependencies.py        LocaleDep, TranslatorDep
     localization.py        Localization
     testing.py             pytest plugin: the locale marker
-    cli/                   fastapi-locale command (_settings.py, _commands.py)
+    cli/                   fastapi-locale command and its settings
     locales/               built-in error catalogs as .pot and .po source
 ```
 
@@ -102,7 +102,9 @@ subtags with the subtag after them as RFC 4647 section 3.4 says: `zh-Hant-TW`, `
 
 ```python
 class LocaleSource(Protocol):
-    def __call__(self, conn: HTTPConnection, /) -> str | Sequence[str] | None: ...
+    def __call__(
+        self, conn: HTTPConnection, /
+    ) -> str | Sequence[str] | None: ...
 ```
 
 A source is any callable with this signature, so a plain function is one. Two optional attributes refine
@@ -147,10 +149,11 @@ return default_locale, "default"
 match(candidate):
     locale = Locale.try_parse(candidate)
     if locale is None: return None
-    for tag in truncations(locale):                      # RFC 4647 lookup
+    for tag in truncations(locale):                 # RFC 4647 lookup
         if tag in supported: return supported[tag]
-    for other in supported, in configured order:         # same language, ADR-0012
-        if other.language == locale.language and scripts do not conflict: return other
+    for other in supported, in configured order:    # same language, ADR-0012
+        if other.language == locale.language and scripts do not conflict:
+            return other
     return None
 ```
 
@@ -330,13 +333,16 @@ exception. Applications with their own handlers can call these functions from th
 
 ```python
 class Localization:
-    def __init__(self, config: LocaleConfig) -> None: ...     # loads catalogs
+    def __init__(self, config: LocaleConfig) -> None: ...  # loads catalogs
     config: LocaleConfig
-    def install(self, app: FastAPI) -> None: ...               # middleware, handlers, app.state
-    def make_default(self) -> None: ...                        # process default for non-request code
+    def install(self, app: FastAPI) -> None: ...
+    def make_default(self) -> None: ...
     def translator(self, locale: str | Locale) -> Translator: ...
-    def override(self, locale: str | Locale) -> ContextManager[Locale]: ...   # tests
+    def override(self, locale: str | Locale) -> ContextManager[Locale]: ...
 ```
+
+`make_default()` chooses this localization for code that runs outside requests, and `override()` forces
+the locale of every request in a block, for tests.
 
 `install()` adds the middleware first, because Starlette refuses new middleware once the application has
 started; nothing else is registered if that fails. It then stores the localization as
@@ -402,10 +408,21 @@ FastAPI returns a new schema object, the translated copies are dropped. `install
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from fastapi_locale import LazyText, LocaleConfig, Localization, TranslatorDep, gettext_lazy
+from fastapi_locale import (
+    LazyText,
+    LocaleConfig,
+    Localization,
+    TranslatorDep,
+    gettext_lazy,
+)
 
-i18n = Localization(LocaleConfig(default_locale="en", supported_locales=["en", "hi", "de"],
-                                 catalog_dirs=["app/locales"]))
+i18n = Localization(
+    LocaleConfig(
+        default_locale="en",
+        supported_locales=["en", "hi", "de"],
+        catalog_dirs=["app/locales"],
+    )
+)
 app = FastAPI()
 i18n.install(app)
 
