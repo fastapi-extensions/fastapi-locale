@@ -9,6 +9,10 @@ from pydantic import BaseModel, TypeAdapter, ValidationError
 from fastapi_locale import (
     LazyText,
     Localization,
+    dgettext_lazy,
+    dngettext_lazy,
+    dnpgettext_lazy,
+    dpgettext_lazy,
     gettext_lazy,
     ngettext_lazy,
     npgettext_lazy,
@@ -36,6 +40,10 @@ def test_variants() -> None:
         assert str(pgettext_lazy("month", "May")) == "Mai"
         assert str(npgettext_lazy("month", "May", "Mays", 1)) == "May"
         assert str(LazyText("Dashboard", domain="admin")) == "Uebersicht"
+        assert str(dgettext_lazy("admin", "Dashboard")) == "Uebersicht"
+        assert str(dngettext_lazy("messages", "{n} file", "{n} files", 3)) == "3 Dateien"
+        assert str(dpgettext_lazy("messages", "month", "May")) == "Mai"
+        assert str(dnpgettext_lazy("messages", "verb", "May", "Mays", 2)) == "Mays"
 
 
 def test_equality_and_hash_do_not_depend_on_locale() -> None:

@@ -5,7 +5,7 @@
 | Document | Development guide |
 | Version | 1.1 |
 | Status | Approved |
-| Owner | Kapil Dagur |
+| Owner | fastapi-locale contributors |
 | Last updated | 2026-09-28 |
 
 ## 1. Set up

@@ -3,10 +3,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Domain model |
-| Version | 1.0 |
+| Version | 1.1 |
 | Status | Approved |
-| Owner | Kapil Dagur |
-| Last updated | 2026-09-28 |
+| Owner | fastapi-locale contributors |
+| Last updated | 2026-10-04 |
 
 ## 1. Purpose
 
@@ -47,11 +47,12 @@ order of preference and names the request headers it reads, so the response can 
 `Accept-Language` (`hi-IN;q=0.8`).
 
 **Negotiation** (domain service). Asks the sources in the configured order and matches each candidate with
-RFC 4647 lookup: try the full tag, then drop subtags from the end until one is supported.
+RFC 4647 lookup: try the full tag, then drop subtags from the end until one is supported. When that finds
+nothing, a supported locale in the same language is used, so `pt` reaches `pt-BR`.
 
-**RequestLocale** (entity). The locale in force for one request. It records which source decided it and
-whether the application changed it later. It lives from the start of the request until the response and
-its background tasks are finished.
+**RequestLocale** (entity). The locale in force for one request. It records what decided it: a source, the
+default, or the application when it changed the locale later. It lives from the start of the request until
+the response and its background tasks are finished.
 
 ### 3.2 Catalogs
 
@@ -72,7 +73,8 @@ has three entries.
 `Plural-Forms` header.
 
 **FallbackChain**. The ordered catalogs searched for a message in one locale and domain, for example
-`pt-BR`, then `pt`, then the default locale. If none has the message, the msgid itself is used.
+`pt-BR`, then `pt`, then the default locale. If none has the message, the msgid itself is used. A locale
+in the source language has no default-locale catalogs in its chain, because its text is the msgid.
 
 ### 3.3 Translating
 
@@ -90,7 +92,8 @@ The library reads `type` and `ctx` and replaces `msg`. It never changes the othe
 **ErrorTemplate**. The library's English template for one error type, with named placeholders that match
 the keys of `ctx`, an optional plural template, and the `ctx` key that decides the plural form. The error
 type is used as the gettext message context, so the same English text can be translated differently for
-different types.
+different types. The template is the key of a translation; an error with no translation keeps Pydantic's
+own `msg`.
 
 ## 4. Invariants
 

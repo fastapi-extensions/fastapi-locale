@@ -3,10 +3,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Test plan |
-| Version | 1.1 |
+| Version | 1.2 |
 | Status | Approved |
-| Owner | Kapil Dagur |
-| Last updated | 2026-09-28 |
+| Owner | fastapi-locale contributors |
+| Last updated | 2026-10-04 |
 
 ## 1. Purpose
 
@@ -40,9 +40,10 @@ differently there than in an in-process client.
 - **Accept-Language parsing.** RFC 9110 examples, malformed members, `q=0`, wildcards, duplicate ranges,
   very long headers, and a Hypothesis property that the parser never raises on arbitrary text.
 - **Negotiation.** Every branch of the resolution activity diagram: source order, invalid candidates,
-  truncation, default fallback.
+  truncation, another region of the same language, default fallback.
 - **Catalog store.** Loading from temporary directories with `.mo` files compiled in the test: merge order,
-  fallback chain, missing directory, corrupt file, locale directory name normalization.
+  fallback chain, the source language, missing directory, unreadable files, locale directory name
+  normalization, values that cannot be tags.
 - **Translator.** All eight functions, plural rules for languages with one, two, three and six forms,
   context, domains, missing entries.
 - **Formatting.** Named substitution, escaped braces, missing names, attribute and index syntax left
@@ -50,17 +51,22 @@ differently there than in an in-process client.
 - **Context.** `use_locale` nesting and restore on error, `set_locale` inside and outside a request,
   process default.
 - **LazyText.** Equality, hashing, formatting, pickling, Pydantic validation and serialization, JSON schema.
-- **Error localizer.** Templates exist for every error type of the installed pydantic-core (NFR-09); plural
-  selection; unknown types; `value_error` prefix.
+- **Error localizer.** Templates exist for every error type of the installed pydantic-core (NFR-09) and
+  every built-in catalog translates all of them; plural selection; unknown types; errors without a
+  translation or without the values a template needs; number formatting; `value_error` prefix.
+- **OpenAPI.** Text keys, data keys, application names that look like keywords, extension keys, named
+  examples.
 - **Config.** Every validation rule in the detailed design, section 4.1.
+- **Public API.** The names exported by the package are exactly the documented list (NFR-15).
 
 ### 3.2 Integration
 
 Each test builds a small FastAPI application with `Localization.install()`.
 
-- Resolution from query, cookie and header; custom source; source order.
+- Resolution from query, cookie and header; custom source; source order; sources that return unusable
+  values; a source-language request when the default locale is another language.
 - `Content-Language` and `Vary` on normal responses, streaming responses, error responses, and when the
-  application already set these headers.
+  application already set these headers, on one line or several.
 - Localized 422 for body, query, path and header validation, with the response shape compared field by
   field against FastAPI's default handler.
 - `set_locale()` in an async and in a sync dependency, seen by the endpoint, the 422 handler and the
@@ -71,7 +77,9 @@ Each test builds a small FastAPI application with `Localization.install()`.
 - WebSocket connections resolve a locale.
 - `dependency_overrides` for `current_locale` and `current_translator`.
 - `Localization.override()` and the pytest marker.
-- Two applications with different configurations in one process (DI-04).
+- Two applications with different configurations in one process (DI-04), and a mounted application that
+  shares the request locale of its parent.
+- The OpenAPI schema per locale, after FastAPI rebuilds it, and with text rendered while it is built.
 - Isolation: many concurrent requests with different locales through one application, checking that every
   response matches its own request (NFR-07).
 
@@ -82,6 +90,8 @@ Each test builds a small FastAPI application with `Localization.install()`.
 - Concurrency: 200 parallel requests over TCP with mixed languages; every response is in its own language.
 - CLI round trip in a temporary project: `extract`, `init`, edit the `.po`, `update`, `check` (fails on a
   missing translation, passes after it is added), `compile`, then load the result with `Localization`.
+- CLI with several domains and an override of the built-in messages, the directories that are never
+  scanned, and every configuration error.
 
 ## 4. Environments
 
@@ -113,10 +123,10 @@ A release can be tagged when, in addition:
 | Requirement | Unit | Integration | End-to-end |
 | --- | --- | --- | --- |
 | CAT-01, CAT-02, CAT-04 | `test_catalog.py` | | CLI round trip |
-| CAT-03, CAT-05, CAT-06 | `test_catalog.py`, `test_config.py` | `test_setup.py` | |
-| LOC-01 to LOC-04, LOC-06 | `test_negotiation.py` | `test_resolution.py` | basic scenarios |
+| CAT-03, CAT-05, CAT-06 | `test_catalog.py`, `test_config.py` | `test_setup.py`, `test_resolution.py` | |
+| LOC-01 to LOC-04, LOC-06 | `test_catalog.py` | `test_resolution.py` | basic scenarios |
 | LOC-07 | `test_accept_language.py` | `test_resolution.py` | |
-| LOC-08, LOC-09 | `test_locale.py`, `test_negotiation.py` | | |
+| LOC-08, LOC-09 | `test_locale.py`, `test_catalog.py` | `test_resolution.py` | |
 | LOC-10, LOC-11 | | `test_headers.py` | basic scenarios |
 | LOC-12 | | `test_websocket.py` | |
 | LOC-13 | `test_context.py` | `test_user_locale.py` | |
@@ -127,7 +137,7 @@ A release can be tagged when, in addition:
 | ERR-01 to ERR-08 | `test_error_localizer.py` | `test_validation_errors.py` | basic scenarios |
 | ERR-09 | | `test_http_errors.py` | basic scenarios |
 | DI-01 to DI-04 | | `test_setup.py`, `test_dependencies.py` | |
-| CLI-01 to CLI-04 | `test_cli_settings.py` | | CLI round trip |
+| CLI-01 to CLI-05 | | | `test_cli.py` |
 | TST-01, TST-02 | | `test_testing_helpers.py` | |
 | DOC-01 to DOC-05 | `test_openapi.py` | `test_openapi.py` | API documentation scenario |
 | NFR-01, NFR-02 | benchmark | | |
@@ -136,6 +146,7 @@ A release can be tagged when, in addition:
 | NFR-07 | | `test_isolation.py` | concurrency |
 | NFR-09 | `test_error_localizer.py` | | |
 | NFR-11 | coverage report in CI | | |
+| NFR-15 | `test_public_api.py` | | |
 
 Requirements planned after 0.1 (CAT-07, LOC-05, ERR-11, FMT) get tests when they are scheduled.
 

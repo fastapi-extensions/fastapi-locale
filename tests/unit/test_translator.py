@@ -109,3 +109,32 @@ def test_properties(store: CatalogStore) -> None:
     assert de.locale == Locale.parse("de")
     assert de.default_domain == "messages"
     assert repr(de) == "Translator('de')"
+
+
+def test_braces_are_handled_the_same_with_and_without_values(store: CatalogStore) -> None:
+    en = tr(store, "en")
+    assert en.gettext("Use {{braces}}") == "Use {braces}"
+    assert en.gettext("Use {{braces}} {x}", x=1) == "Use {braces} 1"
+    assert en.ngettext("{{one}}", "{{many}}", 2) == "{many}"
+    assert en.gettext("100% {name}") == "100% {name}"
+
+
+def test_plain_lookup_of_a_plural_entry_uses_the_form_for_one(store: CatalogStore) -> None:
+    assert tr(store, "de").gettext("{n} file", n=1) == "1 Datei"
+    assert tr(store, "ru").gettext("{n} file", n=1) == "1 файл"
+
+
+@pytest.mark.parametrize("tag", ["en", "de"])
+@pytest.mark.parametrize("n", ["3", 2.5])
+def test_the_count_must_be_an_integer_in_every_locale(
+    store: CatalogStore, tag: str, n: object
+) -> None:
+    with pytest.raises(TypeError, match="n must be an integer"):
+        tr(store, tag).ngettext("{n} file", "{n} files", n)  # type: ignore[arg-type]
+
+
+def test_find_returns_the_text_as_written(store: CatalogStore) -> None:
+    de = tr(store, "de")
+    assert de._find("Hello {name}") == "Hallo {name}"
+    assert de._find("Not in any catalog") is None
+    assert de._find("Untranslated") is None

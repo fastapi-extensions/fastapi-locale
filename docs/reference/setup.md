@@ -1,11 +1,15 @@
 # Setup
 
 ::: fastapi_locale.Localization
+    options:
+      merge_init_into_class: true
 
 ::: fastapi_locale.LocaleConfig
-
-::: fastapi_locale.Resolution
+    options:
+      merge_init_into_class: true
 
 ::: fastapi_locale.LocaleMiddleware
+    options:
+      merge_init_into_class: true
 
 ::: fastapi_locale.localize_openapi

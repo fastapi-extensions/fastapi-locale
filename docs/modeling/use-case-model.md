@@ -3,10 +3,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Use case model |
-| Version | 1.1 |
+| Version | 1.2 |
 | Status | Approved |
-| Owner | Kapil Dagur |
-| Last updated | 2026-09-28 |
+| Owner | fastapi-locale contributors |
+| Last updated | 2026-10-04 |
 
 ## 1. Purpose
 
@@ -46,7 +46,8 @@ Main flow:
 
 1. The client sends a request with a language preference in a query parameter, cookie or `Accept-Language`.
 2. The library asks each configured locale source in order for candidate language tags.
-3. The library matches the candidates against the supported locales using RFC 4647 lookup.
+3. The library matches the candidates against the supported locales using RFC 4647 lookup and, when
+   that finds nothing, a supported locale in the same language.
 4. The library makes the matched locale active for the rest of the request.
 5. The route handler builds the response, translating text in the active locale.
 6. The library adds `Content-Language` and merges the source headers into `Vary`.
@@ -202,7 +203,7 @@ Alternate flows:
 Main flow:
 
 1. The browser opens `/docs`; Swagger UI fetches `/openapi.json` and sends the browser's
-   `Accept-Language` (or the locale cookie).
+   `Accept-Language`.
 2. The library resolves the locale as in UC-01.
 3. The first request for that locale translates FastAPI's generated schema and caches it; later requests
    get the cached copy.

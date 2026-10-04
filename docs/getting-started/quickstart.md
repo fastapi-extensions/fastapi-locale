@@ -55,7 +55,7 @@ Tell the command line tool where your code and catalogs live, in `pyproject.toml
 ```toml
 [tool.fastapi-locale]
 sources = ["."]
-locales_dir = "locales"
+catalog_dir = "locales"
 ```
 
 Then create the German catalog:

@@ -9,3 +9,11 @@
 ::: fastapi_locale.pgettext_lazy
 
 ::: fastapi_locale.npgettext_lazy
+
+::: fastapi_locale.dgettext_lazy
+
+::: fastapi_locale.dngettext_lazy
+
+::: fastapi_locale.dpgettext_lazy
+
+::: fastapi_locale.dnpgettext_lazy

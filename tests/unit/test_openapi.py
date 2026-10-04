@@ -70,3 +70,98 @@ def test_input_is_not_changed(german: Translator) -> None:
 def test_source_language_is_unchanged(localization: Localization) -> None:
     english = localization.translator("en")
     assert translate_schema(SCHEMA, english, BUILTIN_DOMAIN) == SCHEMA
+
+
+def test_application_names_are_not_read_as_keywords(german: Translator) -> None:
+    schema = {
+        "paths": {
+            "/items": {
+                "get": {
+                    "responses": {"default": {"description": "Hello"}},
+                    "parameters": [{"name": "title", "description": "Hello"}],
+                }
+            }
+        },
+        "components": {
+            "schemas": {
+                "Item": {
+                    "properties": {
+                        "default": {"title": "Hello", "description": "Hello", "default": "Hello"},
+                        "enum": {"title": "Hello"},
+                        "examples": {"description": "Hello"},
+                        "description": {"type": "string", "title": "Hello"},
+                    }
+                }
+            },
+            "securitySchemes": {"example": {"type": "http", "description": "Hello"}},
+        },
+    }
+    result = translate_schema(schema, german, BUILTIN_DOMAIN)
+    operation = result["paths"]["/items"]["get"]
+    assert operation["responses"]["default"] == {"description": "Hallo"}
+    assert operation["parameters"] == [{"name": "title", "description": "Hallo"}]
+    properties = result["components"]["schemas"]["Item"]["properties"]
+    assert properties["default"] == {"title": "Hallo", "description": "Hallo", "default": "Hello"}
+    assert properties["enum"] == {"title": "Hallo"}
+    assert properties["examples"] == {"description": "Hallo"}
+    assert properties["description"] == {"type": "string", "title": "Hallo"}
+    assert result["components"]["securitySchemes"]["example"]["description"] == "Hallo"
+
+
+def test_extensions_and_example_values_are_data(german: Translator) -> None:
+    schema = {
+        "x-meta": {"title": "Hello", "value": {"description": "Hello"}},
+        "paths": {
+            "/items": {
+                "post": {
+                    "x-codegen": {"summary": "Hello"},
+                    "requestBody": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "normal": {
+                                        "summary": "Hello",
+                                        "description": "Hello",
+                                        "value": {"title": "Hello", "description": "Hello"},
+                                    },
+                                    "linked": {"$ref": "#/components/examples/linked"},
+                                }
+                            }
+                        }
+                    },
+                }
+            }
+        },
+        "components": {
+            "securitySchemes": {
+                "oauth": {
+                    "flows": {"password": {"tokenUrl": "/token", "scopes": {"read": "Hello"}}}
+                }
+            }
+        },
+    }
+    result = translate_schema(schema, german, BUILTIN_DOMAIN)
+    assert result["x-meta"] == schema["x-meta"]
+    operation = result["paths"]["/items"]["post"]
+    assert operation["x-codegen"] == {"summary": "Hello"}
+    examples = operation["requestBody"]["content"]["application/json"]["examples"]
+    assert examples["normal"] == {
+        "summary": "Hallo",
+        "description": "Hallo",
+        "value": {"title": "Hello", "description": "Hello"},
+    }
+    assert examples["linked"] == {"$ref": "#/components/examples/linked"}
+    flows = result["components"]["securitySchemes"]["oauth"]["flows"]
+    assert flows["password"]["scopes"] == {"read": "Hallo"}
+
+
+def test_braces_in_schema_text_are_not_placeholders(
+    german: Translator, caplog: pytest.LogCaptureFixture
+) -> None:
+    schema = {"info": {"description": "Use {item_id} and {{braces}}", "title": "Hello {name}"}}
+    result = translate_schema(schema, german, BUILTIN_DOMAIN)
+    assert result["info"] == {
+        "description": "Use {item_id} and {{braces}}",
+        "title": "Hallo {name}",
+    }
+    assert not caplog.records

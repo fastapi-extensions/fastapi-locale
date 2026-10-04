@@ -17,7 +17,7 @@ def test_translated_responses_and_headers(server: str) -> None:
     response = httpx.get(server, headers={"Accept-Language": "de-CH, en;q=0.5"})
     assert response.json() == {"message": "Willkommen im Lager", "locale": "de"}
     assert response.headers["content-language"] == "de"
-    assert response.headers["vary"] == "Cookie, Accept-Language"
+    assert response.headers["vary"] == "Accept-Language"
     assert httpx.get(f"{server}/?lang=hi").json()["locale"] == "hi"
 
 

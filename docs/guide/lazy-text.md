@@ -1,8 +1,8 @@
 # Lazy text
 
 Text that is defined once and sent in many responses must be translated per response, not when the
-module is imported. `gettext_lazy()` and its plural and context variants return a `LazyText`, which holds
-the message and is translated each time it is rendered.
+module is imported. `gettext_lazy()` and its plural, context and domain variants return a `LazyText`,
+which holds the message and is translated each time it is rendered.
 
 ```python
 from fastapi import HTTPException
@@ -24,13 +24,17 @@ async def read_order(order_id: int) -> Order:
     return orders[order_id]
 ```
 
+Every translation function has a lazy variant with the same arguments: `gettext_lazy`, `ngettext_lazy`,
+`pgettext_lazy`, `npgettext_lazy`, and `dgettext_lazy`, `dngettext_lazy`, `dpgettext_lazy`,
+`dnpgettext_lazy` for other domains.
+
 ## Where it works
 
 | Place | Rendered |
 | --- | --- |
 | Model field typed `LazyText` | When the response is serialized |
 | `HTTPException.detail`, also nested in dicts and lists | By the library's HTTP exception handler |
-| Values in a returned `dict` or `list` | When the response is serialized |
+| Values in a `dict` or `list` that a route returns | When FastAPI serializes the response |
 | `str(text)` or an f-string | Immediately, in the active locale |
 
 In the OpenAPI schema a `LazyText` field is a plain string.
@@ -39,6 +43,8 @@ In the OpenAPI schema a `LazyText` field is a plain string.
 
 - Type the field as `LazyText`. A `str` field rejects it, which Pydantic reports clearly.
 - `model_dump()` keeps the `LazyText`; `model_dump_json()` and FastAPI responses render it.
+- A response you build yourself is not serialized by FastAPI. Render the text first:
+  `JSONResponse({"message": str(text)})`, or pass the content through `jsonable_encoder()`.
 - Two lazy texts are equal when their message and values are equal. A lazy text is never equal to a plain
   string, because that comparison would depend on the active locale. Call `str()` to compare text.
 - `+`, `%` and slicing are not supported. Use placeholders instead:
@@ -48,4 +54,5 @@ In the OpenAPI schema a `LazyText` field is a plain string.
 ## Route and model documentation
 
 Lazy text is for response data. For route summaries, descriptions and field descriptions use
-`gettext_noop()`; the schema is translated separately. See [API documentation](api-documentation.md).
+`gettext_noop()`; the schema is translated separately, and a lazy value there fails when the schema is
+built. See [API documentation](api-documentation.md).

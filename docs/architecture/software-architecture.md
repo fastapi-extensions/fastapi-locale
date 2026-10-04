@@ -3,10 +3,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Software architecture description |
-| Version | 1.1 |
+| Version | 1.2 |
 | Status | Approved |
-| Owner | Kapil Dagur |
-| Last updated | 2026-09-28 |
+| Owner | fastapi-locale contributors |
+| Last updated | 2026-10-04 |
 
 ## 1. Purpose and scope
 
@@ -113,8 +113,9 @@ always happens inside the request, so it uses the request locale (ADR-0005).
 ![Accept-Language parsing activity](../diagrams/activity-accept-language.svg)
 
 Sources are asked in the configured order; the first candidate that matches a supported locale wins.
-Matching is RFC 4647 lookup. The `Accept-Language` source parses the header as RFC 9110 defines it, drops
-malformed members and refused (`q=0`) ranges, and caps the input length.
+Matching is RFC 4647 lookup, then another region of the same language (ADR-0012). The `Accept-Language`
+source parses the header as RFC 9110 defines it, drops malformed members and refused (`q=0`) ranges, and
+caps the input length.
 
 ### 5.6 API documentation
 

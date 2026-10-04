@@ -61,3 +61,16 @@ def test_unsupported_user_language_keeps_request_locale(client: TestClient) -> N
         "/sync", json={"price": 1}, headers={"Accept-Language": "fr", "X-User-Language": "sw"}
     )
     assert response.json() == {"locale": "fr"}
+
+
+def test_user_without_a_saved_language_keeps_request_locale(app: FastAPI) -> None:
+    async def user_without_language() -> None:
+        with suppress(UnsupportedLocaleError):
+            set_locale(None)  # type: ignore[arg-type]
+
+    @app.get("/", dependencies=[Depends(user_without_language)])
+    async def index(locale: LocaleDep) -> dict[str, str]:
+        return {"locale": locale.tag}
+
+    response = TestClient(app).get("/", headers={"Accept-Language": "fr"})
+    assert response.json() == {"locale": "fr"}

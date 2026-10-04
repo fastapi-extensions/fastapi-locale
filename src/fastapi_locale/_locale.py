@@ -12,7 +12,7 @@ import babel
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-__all__ = ["MAX_TAG_LENGTH", "Locale"]
+__all__ = ["MAX_TAG_LENGTH", "Locale", "truncations"]
 
 # Longer values are rejected before any parsing, so request input cannot cost more than this.
 MAX_TAG_LENGTH = 64
@@ -26,7 +26,16 @@ _SCRIPT_LENGTH = 4
 
 @dataclass(frozen=True, slots=True)
 class Locale:
-    """A language tag such as ``hi``, ``pt-BR`` or ``zh-Hant-TW``; create it with ``parse``."""
+    """A language tag such as ``hi``, ``pt-BR`` or ``zh-Hant-TW``; create it with ``parse``.
+
+    Locales compare by value. A locale is never equal to a string; compare ``locale.tag`` instead.
+
+    Attributes:
+        tag: The normalized tag, for example ``pt-BR``.
+        language: The language subtag in lower case, for example ``pt``.
+        script: The script subtag in title case, for example ``Hant``, when the tag has one.
+        region: The region subtag in upper case, for example ``BR``, when the tag has one.
+    """
 
     tag: str
     language: str
@@ -43,9 +52,9 @@ class Locale:
         return locale
 
     @classmethod
-    def try_parse(cls, value: str) -> Locale | None:
+    def try_parse(cls, value: object) -> Locale | None:
         """Parse and normalize a tag, or return ``None`` if it is not a valid language tag."""
-        if len(value) > MAX_TAG_LENGTH:
+        if not isinstance(value, str) or len(value) > MAX_TAG_LENGTH:
             return None
         parts = value.strip().replace("_", "-").split("-")
         if not all(_SUBTAG.fullmatch(part) for part in parts):
@@ -66,16 +75,6 @@ class Locale:
         normalized.extend(part.lower() for part in rest)
         return cls("-".join(normalized), normalized[0], script, region)
 
-    def truncations(self) -> Iterator[Locale]:
-        """Yield this locale, then ever shorter ones, following RFC 4647 section 3.4."""
-        parts = self.tag.split("-")
-        while parts:
-            yield Locale.parse("-".join(parts))
-            parts.pop()
-            # A single-letter subtag introduces an extension and is dropped with it.
-            while parts and len(parts[-1]) == 1:
-                parts.pop()
-
     @property
     def text_direction(self) -> Literal["ltr", "rtl"]:
         """Writing direction of the language, from CLDR data."""
@@ -83,6 +82,17 @@ class Locale:
 
     def __str__(self) -> str:
         return self.tag
+
+
+def truncations(locale: Locale) -> Iterator[Locale]:
+    """Yield a locale, then ever shorter ones, following RFC 4647 section 3.4."""
+    parts = locale.tag.split("-")
+    while parts:
+        yield Locale.parse("-".join(parts))
+        parts.pop()
+        # A single-letter subtag introduces an extension and is dropped with it.
+        while parts and len(parts[-1]) == 1:
+            parts.pop()
 
 
 def _is_region(subtag: str) -> bool:

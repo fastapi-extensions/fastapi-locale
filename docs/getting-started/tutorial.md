@@ -132,7 +132,7 @@ Configure the command line tool in `pyproject.toml`:
 ```toml
 [tool.fastapi-locale]
 sources = ["."]
-locales_dir = "locales"
+catalog_dir = "locales"
 ```
 
 Extract the messages and start the two languages:

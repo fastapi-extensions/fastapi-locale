@@ -16,3 +16,7 @@ later record supersedes it instead.
 | [0008](0008-load-catalogs-at-setup.md) | Load catalogs when the application is set up | Accepted |
 | [0009](0009-localized-openapi.md) | Localize OpenAPI by translating the generated schema | Accepted |
 | [0010](0010-toolchain.md) | Project toolchain | Accepted |
+| [0011](0011-public-api-and-compatibility.md) | Define the public API as the names exported by the package | Accepted |
+| [0012](0012-language-level-matching.md) | Match another region of the language when lookup finds nothing | Accepted |
+| [0013](0013-cookie-source-is-opt-in.md) | Leave the cookie source out of the default sources | Accepted |
+| [0014](0014-validation-messages-without-a-translation.md) | Keep Pydantic's message when there is nothing to translate into | Accepted |

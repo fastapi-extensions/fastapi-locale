@@ -10,7 +10,7 @@ Internationalization for [FastAPI](https://fastapi.tiangolo.com), built on stand
 
 **Documentation:** <https://fastapi-locale.readthedocs.io>
 
-- Picks a locale for every request from a query parameter, cookie or `Accept-Language`, with RFC 4647
+- Picks a locale for every request from a query parameter, `Accept-Language` or a cookie, with RFC 4647
   matching and correct `Content-Language` and `Vary` headers.
 - Returns FastAPI's 422 validation errors in the client's language, with correct plural forms.
 - Lazy text that works in Pydantic models, response models and `HTTPException.detail`.

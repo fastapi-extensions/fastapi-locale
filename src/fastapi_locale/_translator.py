@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import logging
+import operator
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, SupportsIndex
 
 from fastapi_locale._formatting import format_message
 
@@ -42,7 +43,11 @@ class Catalog:
 
 
 class Translator:
-    """Translate messages for exactly one locale, in any loaded domain."""
+    """Translate messages for exactly one locale, in any loaded domain.
+
+    Applications do not create translators. They get one from ``TranslatorDep``,
+    ``get_translator()`` or ``Localization.translator()``.
+    """
 
     __slots__ = ("_chains", "_default_domain", "_locale", "_warned")
 
@@ -69,35 +74,35 @@ class Translator:
 
     def gettext(self, message: str, /, **params: object) -> str:
         """Translate a message."""
-        return self.translate(message, params=params)
+        return self._translate(message, params=params)
 
     def ngettext(self, singular: str, plural: str, n: int, /, **params: object) -> str:
         """Translate a message with a plural form chosen by ``n``."""
-        return self.translate(singular, plural=plural, n=n, params=params)
+        return self._translate(singular, plural=plural, n=n, params=params)
 
     def pgettext(self, context: str, message: str, /, **params: object) -> str:
         """Translate a message within a context."""
-        return self.translate(message, context=context, params=params)
+        return self._translate(message, context=context, params=params)
 
     def npgettext(
         self, context: str, singular: str, plural: str, n: int, /, **params: object
     ) -> str:
         """Translate a message within a context, with a plural form chosen by ``n``."""
-        return self.translate(singular, plural=plural, n=n, context=context, params=params)
+        return self._translate(singular, plural=plural, n=n, context=context, params=params)
 
     def dgettext(self, domain: str, message: str, /, **params: object) -> str:
         """Translate a message from another domain."""
-        return self.translate(message, domain=domain, params=params)
+        return self._translate(message, domain=domain, params=params)
 
     def dngettext(
         self, domain: str, singular: str, plural: str, n: int, /, **params: object
     ) -> str:
         """Translate a plural message from another domain."""
-        return self.translate(singular, plural=plural, n=n, domain=domain, params=params)
+        return self._translate(singular, plural=plural, n=n, domain=domain, params=params)
 
     def dpgettext(self, domain: str, context: str, message: str, /, **params: object) -> str:
         """Translate a message within a context, from another domain."""
-        return self.translate(message, context=context, domain=domain, params=params)
+        return self._translate(message, context=context, domain=domain, params=params)
 
     def dnpgettext(
         self,
@@ -110,11 +115,11 @@ class Translator:
         **params: object,
     ) -> str:
         """Translate a plural message within a context, from another domain."""
-        return self.translate(
+        return self._translate(
             singular, plural=plural, n=n, context=context, domain=domain, params=params
         )
 
-    def translate(
+    def _translate(
         self,
         message: str,
         *,
@@ -126,33 +131,42 @@ class Translator:
     ) -> str:
         """Look up a message along the fallback chain and fill its placeholders."""
         domain = domain or self._default_domain
-        text = self._lookup(domain, context, message, plural, n)
-        values: Mapping[str, object] = params or {}
-        if plural is not None and n is not None and "n" not in values:
-            values = {"n": n, **values}
-        if not values:
+        if plural is not None and n is not None:
+            n = _count(n)
+            text = self._find(message, plural=plural, n=n, context=context, domain=domain)
+            if text is None:
+                text = message if n == 1 else plural
+        else:
+            n = None
+            text = self._find(message, context=context, domain=domain) or message
+        if "{" not in text and "}" not in text:
             return text
+        values: Mapping[str, object] = params or {}
+        if n is not None and "n" not in values:
+            values = {"n": n, **values}
         return format_message(text, values, lambda name: self._warn_missing(domain, message, name))
 
-    def _lookup(
+    def _find(
         self,
-        domain: str,
-        context: str | None,
-        singular: str,
-        plural: str | None,
-        n: int | None,
-    ) -> str:
-        key = singular if context is None else f"{context}{_CONTEXT_SEPARATOR}{singular}"
-        for catalog in self._chains.get(domain, ()):
+        message: str,
+        *,
+        plural: str | None = None,
+        n: int | None = None,
+        context: str | None = None,
+        domain: str | None = None,
+    ) -> str | None:
+        """Return the catalog text of a message as written, or ``None`` if no catalog has it."""
+        key = message if context is None else f"{context}{_CONTEXT_SEPARATOR}{message}"
+        for catalog in self._chains.get(domain or self._default_domain, ()):
+            messages = catalog.messages
             if plural is not None and n is not None:
-                found = catalog.messages.get((key, catalog.plural(n)))
+                found = messages.get((key, catalog.plural(n)))
             else:
-                found = catalog.messages.get(key)
+                # Like gettext, answer a plain lookup of a plural entry with its form for one.
+                found = messages.get(key) or messages.get((key, catalog.plural(1)))
             if found:  # an empty translation counts as missing
                 return found
-        if plural is not None and n is not None and n != 1:
-            return plural
-        return singular
+        return None
 
     def _warn_missing(self, domain: str, message: str, name: str) -> None:
         key = (domain, message, name)
@@ -169,3 +183,12 @@ class Translator:
 
     def __repr__(self) -> str:
         return f"Translator({self._locale.tag!r})"
+
+
+def _count(n: SupportsIndex) -> int:
+    """Return ``n`` as the integer that picks a plural form; other types are a caller error."""
+    try:
+        return operator.index(n)
+    except TypeError:
+        msg = f"n must be an integer, got {type(n).__name__}"
+        raise TypeError(msg) from None

@@ -2,101 +2,101 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Sequence
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol
 
 from fastapi_locale._accept_language import DEFAULT_MAX_LENGTH, parse_accept_language
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from starlette.requests import HTTPConnection
 
-__all__ = [
-    "AcceptLanguageSource",
-    "CookieSource",
-    "LocaleSource",
-    "LocaleSourceLike",
-    "QueryParamSource",
-    "default_sources",
-    "source_name",
-    "source_vary",
-]
+__all__ = ["AcceptLanguageSource", "CookieSource", "LocaleSource", "QueryParamSource"]
 
 
-@runtime_checkable
 class LocaleSource(Protocol):
-    """Return candidate language tags for a request, most preferred first.
+    """A callable that returns the language tags a request asks for, most preferred first.
 
-    A source must be fast, must not do I/O and must not raise. ``vary`` names the request headers it
-    reads, so responses can be cached per language.
+    Any function that takes the connection and returns a tag, a sequence of tags or ``None`` is a
+    source. It must be fast and must not do I/O. Two optional attributes refine it: ``name`` is
+    recorded as the deciding source and defaults to the function or class name, and ``vary`` is a
+    tuple of the request headers it reads, which are added to the ``Vary`` response header.
     """
 
-    name: str
-    vary: tuple[str, ...]
-
-    def __call__(self, conn: HTTPConnection, /) -> Sequence[str]:
-        """Return candidate tags for this request."""
+    def __call__(self, conn: HTTPConnection, /) -> str | Sequence[str] | None:
+        """Return the tags this request asks for, or nothing."""
         ...
 
 
-LocaleSourceLike = LocaleSource | Callable[["HTTPConnection"], "str | Sequence[str] | None"]
-
-
 class QueryParamSource:
-    """Read the locale from a query parameter, ``?lang=hi`` by default."""
+    """Read the locale from a query parameter.
 
+    Args:
+        param: Name of the query parameter.
+    """
+
+    name = "query"
     vary: tuple[str, ...] = ()
 
     def __init__(self, param: str = "lang") -> None:
         self.param = param
-        self.name = "query"
 
     def __call__(self, conn: HTTPConnection, /) -> Sequence[str]:
-        """Return candidate tags for this request."""
+        """Return the tags this request asks for."""
         value = conn.query_params.get(self.param)
         return [value] if value else []
 
 
 class CookieSource:
-    """Read the locale from a cookie, ``locale`` by default."""
+    """Read the locale from a cookie.
 
+    Args:
+        cookie: Name of the cookie.
+    """
+
+    name = "cookie"
     vary: tuple[str, ...] = ("Cookie",)
 
-    def __init__(self, name: str = "locale") -> None:
-        self.cookie = name
-        self.name = "cookie"
+    def __init__(self, cookie: str = "locale") -> None:
+        self.cookie = cookie
 
     def __call__(self, conn: HTTPConnection, /) -> Sequence[str]:
-        """Return candidate tags for this request."""
+        """Return the tags this request asks for."""
         value = conn.cookies.get(self.cookie)
         return [value] if value else []
 
 
 class AcceptLanguageSource:
-    """Read the locale from the ``Accept-Language`` header, honouring q-values."""
+    """Read the locale from the ``Accept-Language`` header, honouring q-values.
 
+    Args:
+        max_length: Header values longer than this, 1024 characters by default, are cut at the
+            last complete member before parsing.
+    """
+
+    name = "accept-language"
     vary: tuple[str, ...] = ("Accept-Language",)
 
     def __init__(self, max_length: int = DEFAULT_MAX_LENGTH) -> None:
         self.max_length = max_length
-        self.name = "accept-language"
 
     def __call__(self, conn: HTTPConnection, /) -> Sequence[str]:
-        """Return candidate tags for this request."""
+        """Return the tags this request asks for."""
         header = ", ".join(conn.headers.getlist("accept-language"))
         return parse_accept_language(header, self.max_length) if header else []
 
 
 def default_sources() -> tuple[LocaleSource, ...]:
-    """Query parameter ``lang``, then cookie ``locale``, then ``Accept-Language``."""
-    return (QueryParamSource(), CookieSource(), AcceptLanguageSource())
+    """Query parameter ``lang``, then ``Accept-Language``."""
+    return (QueryParamSource(), AcceptLanguageSource())
 
 
-def source_name(source: LocaleSourceLike) -> str:
+def source_name(source: LocaleSource) -> str:
     """Name recorded as the deciding source."""
     name = getattr(source, "name", None) or getattr(source, "__name__", None)
     return str(name) if name else type(source).__name__
 
 
-def source_vary(source: LocaleSourceLike) -> tuple[str, ...]:
+def source_vary(source: LocaleSource) -> tuple[str, ...]:
     """Request headers a source reads."""
     return tuple(getattr(source, "vary", ()))

@@ -35,7 +35,7 @@ Tr --> Route : translated text
 Route --> Router : response model
 deactivate Route
 Router -> MW : send(http.response.start)
-MW -> MW : add Content-Language: hi\nmerge Vary: Accept-Language, Cookie
+MW -> MW : add Content-Language: hi\nmerge Vary: Accept-Language
 MW -> Server : send(http.response.start)
 Router -> MW : send(http.response.body)
 MW -> Server : send(http.response.body)

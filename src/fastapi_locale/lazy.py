@@ -15,12 +15,26 @@ if TYPE_CHECKING:
     from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
     from pydantic.json_schema import JsonSchemaValue
 
-__all__ = ["LazyText", "gettext_lazy", "ngettext_lazy", "npgettext_lazy", "pgettext_lazy"]
+__all__ = [
+    "LazyText",
+    "dgettext_lazy",
+    "dngettext_lazy",
+    "dnpgettext_lazy",
+    "dpgettext_lazy",
+    "gettext_lazy",
+    "ngettext_lazy",
+    "npgettext_lazy",
+    "pgettext_lazy",
+]
 
 
 @final
 class LazyText:
-    """A message and its values, translated in the active locale each time it is rendered."""
+    """A message and its values, translated in the active locale each time it is rendered.
+
+    Create it with ``gettext_lazy()`` and the other ``*_lazy`` functions, and use it as the type
+    of model fields that hold lazy text.
+    """
 
     __slots__ = ("_context", "_domain", "_message", "_n", "_params", "_plural")
 
@@ -47,7 +61,7 @@ class LazyText:
         return self._message
 
     def __str__(self) -> str:
-        return get_translator().translate(
+        return get_translator()._translate(
             self._message,
             plural=self._plural,
             n=self._n,
@@ -137,3 +151,27 @@ def npgettext_lazy(
 ) -> LazyText:
     """Mark a plural message with a context for translation when it is rendered."""
     return LazyText(singular, plural=plural, n=n, context=context, params=params)
+
+
+def dgettext_lazy(domain: str, message: str, /, **params: object) -> LazyText:
+    """Mark a message from another domain for translation when it is rendered."""
+    return LazyText(message, domain=domain, params=params)
+
+
+def dngettext_lazy(
+    domain: str, singular: str, plural: str, n: int, /, **params: object
+) -> LazyText:
+    """Mark a plural message from another domain for translation when it is rendered."""
+    return LazyText(singular, plural=plural, n=n, domain=domain, params=params)
+
+
+def dpgettext_lazy(domain: str, context: str, message: str, /, **params: object) -> LazyText:
+    """Mark a message with a context, from another domain, for translation when it is rendered."""
+    return LazyText(message, context=context, domain=domain, params=params)
+
+
+def dnpgettext_lazy(
+    domain: str, context: str, singular: str, plural: str, n: int, /, **params: object
+) -> LazyText:
+    """Mark a plural message with a context, from another domain, for translation when rendered."""
+    return LazyText(singular, plural=plural, n=n, context=context, domain=domain, params=params)

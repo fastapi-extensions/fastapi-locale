@@ -18,15 +18,15 @@ endif
 note right
   Chain for pt-BR:
   pt-BR catalog, pt catalog,
-  default locale catalog, msgid
+  default locale catalog, msgid.
+  A locale in the source language
+  skips the default locale catalog.
 end note
 :take the first translation found\n(or the msgid if none);
-if (params given or plural form?) then (yes)
-  :replace each {name} with its value;
-  if (a placeholder has no value?) then (yes)
-    :leave it as written;
-    :log a warning once per message and locale;
-  endif
+:replace each {name} with its value\nand {{ }} with literal braces;
+if (a placeholder has no value?) then (yes)
+  :leave it as written;
+  :log a warning once per message and locale;
 endif
 :return the text;
 stop

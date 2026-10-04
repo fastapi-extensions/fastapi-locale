@@ -39,3 +39,46 @@ def test_locale_marker_needs_a_localization(pytester: pytest.Pytester) -> None:
         """
     )
     pytester.runpytest("-p", "fastapi_locale.testing").assert_outcomes(passed=2)
+
+
+def test_locale_marker_arguments(pytester: pytest.Pytester) -> None:
+    pytester.makepyfile(
+        """
+        import pytest
+        from fastapi_locale import LocaleConfig, Localization, get_locale
+
+        config = LocaleConfig(default_locale="en", supported_locales=["en", "fr"])
+        Localization(config).make_default()
+
+        @pytest.mark.locale(tag="fr")
+        def test_keyword():
+            assert get_locale().tag == "fr"
+
+        @pytest.mark.locale
+        def test_without_a_tag():
+            pass
+        """
+    )
+    result = pytester.runpytest("-p", "fastapi_locale.testing")
+    result.assert_outcomes(passed=1, errors=1)
+    result.stdout.fnmatch_lines(["*the locale marker needs a language tag*"])
+
+
+def test_default_localization_is_put_back_after_each_test(pytester: pytest.Pytester) -> None:
+    pytester.makepyfile(
+        """
+        from fastapi import FastAPI
+        from fastapi_locale import LocaleConfig, Localization, get_locale
+
+        Localization(LocaleConfig(default_locale="en", supported_locales=["en"])).make_default()
+
+        def test_installs_another_localization():
+            config = LocaleConfig(default_locale="fr", supported_locales=["fr"])
+            Localization(config).install(FastAPI())
+            assert get_locale().tag == "fr"
+
+        def test_sees_the_original_default():
+            assert get_locale().tag == "en"
+        """
+    )
+    pytester.runpytest("-p", "fastapi_locale.testing").assert_outcomes(passed=2)

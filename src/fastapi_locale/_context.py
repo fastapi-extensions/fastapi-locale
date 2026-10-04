@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from typing import TYPE_CHECKING, Protocol
 
-from fastapi_locale.exceptions import LocalizationNotConfiguredError
+from fastapi_locale.exceptions import LocalizationNotConfiguredError, NoActiveRequestError
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 __all__ = [
     "RequestLocale",
     "TranslatorProvider",
+    "current_request_locale",
     "dgettext",
     "dngettext",
     "dnpgettext",
@@ -33,6 +34,7 @@ __all__ = [
     "pgettext",
     "set_locale",
     "set_process_default",
+    "use_default_locale",
     "use_locale",
 ]
 
@@ -47,9 +49,14 @@ class TranslatorProvider(Protocol):
 
 
 class RequestLocale:
-    """Mutable per-request holder, shared by every context copy made during the request."""
+    """The locale of one request and what chose it; available as ``request.state.locale``.
 
-    __slots__ = ("decided_by", "overridden", "provider", "request", "temporary", "translator")
+    ``set_locale()`` changes it during the request, so read it when the value is needed, for
+    example when the access log line is written.
+    """
+
+    # One object per request, shared by every context copy made while the request is handled.
+    __slots__ = ("_decided_by", "_provider", "_request", "_temporary", "_translator")
 
     def __init__(
         self,
@@ -60,26 +67,25 @@ class RequestLocale:
         *,
         temporary: bool = False,
     ) -> None:
-        self.translator = translator
-        self.decided_by = decided_by
-        self.provider = provider
+        self._translator = translator
+        self._decided_by = decided_by
+        self._provider = provider
         # Set for use_locale() blocks: points at the request holder they shadow.
-        self.request = request
-        self.temporary = temporary
-        self.overridden = False
+        self._request = request
+        self._temporary = temporary
 
     @property
     def locale(self) -> Locale:
-        """The active locale."""
-        return self.translator.locale
+        """The locale the request is answered in."""
+        return self._translator.locale
 
-    def change(self, translator: Translator) -> None:
-        """Switch the request to another translator for the rest of the request."""
-        self.translator = translator
-        self.overridden = True
+    @property
+    def decided_by(self) -> str:
+        """Name of the source that chose it, or ``default``, ``override`` or ``set_locale``."""
+        return self._decided_by
 
     def __repr__(self) -> str:
-        return f"RequestLocale({self.locale.tag!r}, decided_by={self.decided_by!r})"
+        return f"RequestLocale({self.locale.tag!r}, decided_by={self._decided_by!r})"
 
 
 _current: ContextVar[RequestLocale | None] = ContextVar(
@@ -121,7 +127,7 @@ def get_translator() -> Translator:
     """Return the active translator: block, then request, then process default."""
     holder = _current.get()
     if holder is not None:
-        return holder.translator
+        return holder._translator
     if _process_default is not None:
         return _process_default.default_translator
     msg = (
@@ -139,33 +145,60 @@ def get_locale() -> Locale:
 def set_locale(locale: str | Locale) -> Locale:
     """Change the locale for the rest of the current request and return the matched locale.
 
-    Raises ``UnsupportedLocaleError`` when no supported locale matches, and
-    ``LocalizationNotConfiguredError`` when called outside a request.
+    Raises ``UnsupportedLocaleError`` when no supported locale matches, which includes ``None``
+    and empty values, and ``NoActiveRequestError`` when called outside a request.
     """
-    holder = _current.get()
-    request = _request_holder(holder)
+    request = _request_holder(_current.get())
     if request is None:
         msg = "set_locale() works only during a request; use use_locale() for a block of code"
-        raise LocalizationNotConfiguredError(msg)
-    translator = request.provider.translator_for(locale)
-    request.change(translator)
+        raise NoActiveRequestError(msg)
+    translator = request._provider.translator_for(locale)
+    request._translator = translator
+    request._decided_by = "set_locale"
     return translator.locale
 
 
 @contextmanager
-def use_locale(locale: str | Locale) -> Iterator[Translator]:
-    """Make a locale active for a block of code without changing the request's own locale."""
+def use_locale(locale: str | Locale) -> Iterator[Locale]:
+    """Make a locale active for a block of code and yield the matched locale.
+
+    The request's own locale and its ``Content-Language`` header do not change. Raises
+    ``UnsupportedLocaleError`` when no supported locale matches.
+    """
     holder = _current.get()
-    provider = holder.provider if holder is not None else _process_default
+    provider = holder._provider if holder is not None else _process_default
     if provider is None:
         msg = "no localization is set up; create a Localization before calling use_locale()"
         raise LocalizationNotConfiguredError(msg)
     translator = provider.translator_for(locale)
+    with _block(translator, "use_locale", provider, holder):
+        yield translator.locale
+
+
+@contextmanager
+def use_default_locale() -> Iterator[None]:
+    """Make the default locale active for a block; does nothing where no localization is set up."""
+    holder = _current.get()
+    provider = holder._provider if holder is not None else _process_default
+    if provider is None:
+        yield
+        return
+    with _block(provider.default_translator, "default", provider, holder):
+        yield
+
+
+@contextmanager
+def _block(
+    translator: Translator,
+    decided_by: str,
+    provider: TranslatorProvider,
+    holder: RequestLocale | None,
+) -> Iterator[None]:
     token = _current.set(
-        RequestLocale(translator, "use_locale", provider, _request_holder(holder), temporary=True)
+        RequestLocale(translator, decided_by, provider, _request_holder(holder), temporary=True)
     )
     try:
-        yield translator
+        yield
     finally:
         _current.reset(token)
 
@@ -174,7 +207,7 @@ def _request_holder(holder: RequestLocale | None) -> RequestLocale | None:
     """Return the holder of the enclosing request, skipping use_locale() blocks."""
     if holder is None:
         return None
-    return holder.request if holder.temporary else holder
+    return holder._request if holder._temporary else holder
 
 
 def gettext(message: str, /, **params: object) -> str:

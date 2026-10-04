@@ -21,8 +21,8 @@ The library's own error catalogs ship inside the package and need no build step.
 ## Startup
 
 Catalogs are read once, when the application module creates its `Localization`. A missing directory or a
-corrupt file raises `CatalogLoadError`, so a broken deployment fails at startup, not on the first request.
-Nothing is read from disk while serving requests.
+file that cannot be read raises `CatalogLoadError` naming the path, so a broken deployment fails at
+startup, not on the first request. Nothing is read from disk while serving requests.
 
 ## Workers
 
@@ -31,13 +31,16 @@ workers (`uvicorn --workers 4`, Gunicorn, Kubernetes replicas) needs no configur
 
 ## Caches and CDNs
 
-Every response carries `Content-Language` and a `Vary` header naming the request headers that chose the
-locale, usually `Accept-Language` and `Cookie`. Shared caches that honour `Vary` keep one copy per
-language.
+Every response carries `Content-Language` and a `Vary` header naming the request headers the sources
+read. With the default sources that is `Accept-Language`. Shared caches that honour `Vary` keep one copy
+per language.
 
-Many CDNs ignore `Vary` or treat `Vary: Cookie` as uncacheable. For cached pages, prefer a locale in the
-URL (the `lang` query parameter, or a path prefix in your own routing) and configure the CDN to include it
-in the cache key.
+Adding `CookieSource` adds `Cookie` to `Vary`. Many CDNs treat `Vary: Cookie` as uncacheable, and some
+ignore `Vary` altogether. For cached pages, prefer a locale in the URL (the `lang` query parameter, or a
+path prefix in your own routing) and configure the CDN to include it in the cache key.
+
+A response in the user's saved language, applied with `set_locale()`, depends on who is signed in. Cache
+it as you cache any other per-user response.
 
 ## Logging
 
@@ -46,8 +49,9 @@ The library logs under the `fastapi_locale` logger:
 | Level | Event |
 | --- | --- |
 | INFO | Catalogs loaded at startup: locales, domains, message count |
-| WARNING | A supported locale has no catalog; a translation uses a placeholder without a value; a custom locale source raised |
+| WARNING | A supported locale has no catalog; a message uses a placeholder without a value; a locale source raised |
 | DEBUG | The locale chosen for each request and the source that chose it |
 
-Request headers and message values are never logged above DEBUG. The chosen locale and its source are
-available as `request.state.locale.locale` and `request.state.locale.decided_by` for your own access logs.
+Request headers and message values are never logged above DEBUG. The chosen locale and what chose it are
+available as `request.state.locale.locale` and `request.state.locale.decided_by` for your own access logs;
+see [choosing the locale](locale-resolution.md#what-the-request-ended-up-with).
