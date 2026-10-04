@@ -6,8 +6,11 @@ All notable changes are listed here. The format follows
 
 ## [Unreleased]
 
-The public API is now defined and pinned: see "What is public" in the API reference. Several names changed
-to make it consistent; they are listed under "Changed" and "Removed".
+## [0.1.0rc2] - 2026-10-04
+
+Second release candidate. The public API is now defined and pinned: see "What is public" in the API
+reference. Several names changed since 0.1.0rc1 to make it consistent; they are listed under "Changed"
+and "Removed".
 
 ### Added
 
