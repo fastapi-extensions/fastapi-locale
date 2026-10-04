@@ -5,7 +5,7 @@
 | Document | Survey of existing i18n libraries for FastAPI and Starlette |
 | Version | 1.0 |
 | Status | Approved |
-| Owner | Kapil Dagur |
+| Owner | fastapi-locale contributors |
 | Last updated | 2026-09-28 |
 
 ## 1. Purpose

@@ -53,6 +53,11 @@ exclude_docs: |
   diagrams/*.puml
   diagrams/include/
 
+extra_css:
+  - stylesheets/extra.css
+extra_javascript:
+  - javascripts/extra.js
+
 markdown_extensions:
   - admonition
   - attr_list
@@ -61,8 +66,7 @@ markdown_extensions:
   - toc:
       permalink: true
   - pymdownx.details
-  - pymdownx.highlight:
-      anchor_linenums: true
+  - pymdownx.highlight
   - pymdownx.inlinehilite
   - pymdownx.snippets:
       base_path: ["."]
@@ -108,14 +112,15 @@ nav:
       - Troubleshooting: guide/troubleshooting.md
       - Migrating: guide/migration.md
   - API reference:
+      - reference/index.md
       - Setup: reference/setup.md
       - Translation: reference/translation.md
       - Locale context: reference/context.md
-      - Lazy text: reference/lazy.md
+      - Lazy text API: reference/lazy.md
       - Dependencies: reference/dependencies.md
       - Locale sources: reference/sources.md
       - Errors and exceptions: reference/errors.md
-      - Testing: reference/testing.md
+      - Pytest plugin: reference/testing.md
   - Project documents:
       - Overview: project-documents.md
       - Existing libraries: research/existing-libraries.md
@@ -135,6 +140,11 @@ nav:
           - ADR-0008: adr/0008-load-catalogs-at-setup.md
           - ADR-0009: adr/0009-localized-openapi.md
           - ADR-0010: adr/0010-toolchain.md
+          - ADR-0011: adr/0011-public-api-and-compatibility.md
+          - ADR-0012: adr/0012-language-level-matching.md
+          - ADR-0013: adr/0013-cookie-source-is-opt-in.md
+          - ADR-0014: adr/0014-validation-messages-without-a-translation.md
+          - ADR-0015: adr/0015-format-site-assets-with-prettier.md
       - Detailed design: design/detailed-design.md
       - Test plan: testing/test-plan.md
       - Development guide: development/development-guide.md

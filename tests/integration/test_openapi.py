@@ -6,7 +6,15 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pydantic import BaseModel, Field
 
-from fastapi_locale import LocaleConfig, Localization, gettext_noop, use_locale
+from fastapi_locale import (
+    LazyText,
+    LocaleConfig,
+    Localization,
+    gettext_lazy,
+    gettext_noop,
+    localize_openapi,
+    use_locale,
+)
 
 
 class Item(BaseModel):
@@ -60,3 +68,49 @@ def test_can_be_turned_off(make_config: Callable[..., LocaleConfig]) -> None:
 def test_docs_page_still_works(make_config: Callable[..., LocaleConfig]) -> None:
     client = TestClient(build(make_config()))
     assert client.get("/docs", headers={"Accept-Language": "de"}).status_code == 200
+
+
+class Order(BaseModel):
+    status: LazyText = gettext_lazy("Pending")
+
+
+def test_text_rendered_while_the_schema_is_built_uses_the_default_locale(
+    make_config: Callable[..., LocaleConfig],
+) -> None:
+    app = build(make_config())
+
+    @app.post("/orders")
+    async def create(order: Order) -> Order:
+        return order
+
+    client = TestClient(app)
+    for language in ("de", "en", "de"):  # whoever asks first must not decide for everyone
+        schema = client.get("/openapi.json", headers={"Accept-Language": language}).json()
+        assert schema["components"]["schemas"]["Order"]["properties"]["status"]["default"] == (
+            "Pending"
+        )
+
+
+def test_schema_follows_fastapi_when_it_is_rebuilt(
+    make_config: Callable[..., LocaleConfig],
+) -> None:
+    app = build(make_config())
+    client = TestClient(app)
+    german = {"Accept-Language": "de"}
+    assert sorted(client.get("/openapi.json", headers=german).json()["paths"]) == ["/items"]
+
+    @app.get("/later", summary=gettext_noop("Item"))
+    async def later() -> dict[str, str]:
+        return {}
+
+    app.openapi_schema = None
+    paths = client.get("/openapi.json", headers=german).json()["paths"]
+    assert sorted(paths) == ["/items", "/later"]
+    assert paths["/later"]["get"]["summary"] == "Artikel (Schema)"
+
+
+def test_localizing_twice_changes_nothing(make_config: Callable[..., LocaleConfig]) -> None:
+    app = build(make_config())
+    localized = app.openapi
+    localize_openapi(app)
+    assert app.openapi is localized

@@ -4,8 +4,13 @@ repos:
     rev: v5.0.0
     hooks:
       - id: check-yaml
+        # mkdocs.yml uses the !ENV tag, which the safe loader rejects; check the syntax only.
+        args: [--unsafe]
       - id: check-toml
       - id: end-of-file-fixer
+        # Rendered diagrams and gettext catalogs stay exactly as their tools write them; CI
+        # compares the diagrams and the built-in catalogs byte for byte.
+        exclude: \.svg$|\.pot?$
       - id: trailing-whitespace
         exclude: \.svg$
       - id: check-added-large-files
@@ -19,6 +24,22 @@ repos:
 
   - repo: local
     hooks:
+      # Prettier formats the documentation site's own HTML, CSS and JavaScript. pre-commit installs
+      # the pinned version into its own Node environment, so nothing is installed globally.
+      - id: prettier
+        name: prettier (docs html, css, js)
+        entry: prettier --write --ignore-unknown
+        language: node
+        additional_dependencies: &prettier ["prettier@3.9.9"]
+        files: ^docs/.*\.(html|css|js)$
+      # The same check without writing, for `make lint` and CI.
+      - id: prettier-check
+        name: prettier check (docs html, css, js)
+        entry: prettier --check --ignore-unknown
+        language: node
+        additional_dependencies: *prettier
+        files: ^docs/.*\.(html|css|js)$
+        stages: [manual]
       - id: ruff-check
         name: ruff check
         entry: uv run ruff check --fix

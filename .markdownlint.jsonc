@@ -1,4 +1,6 @@
 {
   // Wide tables are common in requirement and design documents.
-  "MD013": { "line_length": 120, "tables": false, "code_blocks": false }
+  "MD013": { "line_length": 120, "tables": false, "code_blocks": false },
+  // The changelog repeats "Added", "Changed" and "Fixed" under every release.
+  "MD024": { "siblings_only": true }
 }

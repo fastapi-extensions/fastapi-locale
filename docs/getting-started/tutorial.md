@@ -22,7 +22,9 @@ i18n = Localization(
 )
 app = FastAPI(
     title=gettext_noop("Inventory"),
-    description=gettext_noop("A small inventory API that answers in your language."),
+    description=gettext_noop(
+        "A small inventory API that answers in your language."
+    ),
 )
 i18n.install(app)
 ```
@@ -40,7 +42,10 @@ from fastapi_locale import LocaleDep, TranslatorDep
 
 @app.get("/")
 async def welcome(tr: TranslatorDep, locale: LocaleDep) -> dict[str, str]:
-    return {"message": tr.gettext("Welcome to the inventory"), "locale": locale.tag}
+    return {
+        "message": tr.gettext("Welcome to the inventory"),
+        "locale": locale.tag,
+    }
 ```
 
 `TranslatorDep` is the translator for the request's locale. `LocaleDep` is the locale itself.
@@ -115,7 +120,9 @@ from fastapi import Depends, Header
 from fastapi_locale import UnsupportedLocaleError, set_locale
 
 
-async def current_user(x_user_language: Annotated[str | None, Header()] = None) -> None:
+async def current_user(
+    x_user_language: Annotated[str | None, Header()] = None,
+) -> None:
     """Stand-in for real authentication: apply the user's saved language."""
     if x_user_language:
         with suppress(UnsupportedLocaleError):
@@ -132,7 +139,7 @@ Configure the command line tool in `pyproject.toml`:
 ```toml
 [tool.fastapi-locale]
 sources = ["."]
-locales_dir = "locales"
+catalog_dir = "locales"
 ```
 
 Extract the messages and start the two languages:
@@ -171,7 +178,7 @@ curl -s -H "X-User-Language: hi" -H "Content-Type: application/json" \
      -d '{"name": "Milk", "quantity": 3}' http://127.0.0.1:8000/items
 ```
 
-Open <http://127.0.0.1:8000/docs> in a browser set to German: the title, summaries, field descriptions
+Open `http://127.0.0.1:8000/docs` in a browser set to German: the title, summaries, field descriptions
 and response texts are German too.
 
 ## Step 8: test it
@@ -191,7 +198,9 @@ def test_welcome_in_hindi() -> None:
 
 def test_validation_errors_in_german() -> None:
     response = client.post(
-        "/items", json={"name": "ab", "quantity": 0}, headers={"Accept-Language": "de"}
+        "/items",
+        json={"name": "ab", "quantity": 0},
+        headers={"Accept-Language": "de"},
     )
     messages = [error["msg"] for error in response.json()["detail"]]
     assert "Eingabe muss größer als 0 sein" in messages

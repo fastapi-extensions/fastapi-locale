@@ -15,3 +15,5 @@
 ::: fastapi_locale.UnsupportedLocaleError
 
 ::: fastapi_locale.LocalizationNotConfiguredError
+
+::: fastapi_locale.NoActiveRequestError

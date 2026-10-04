@@ -5,7 +5,7 @@ from hypothesis import given
 from hypothesis import strategies as st
 
 from fastapi_locale import Locale
-from fastapi_locale._locale import MAX_TAG_LENGTH
+from fastapi_locale._locale import MAX_TAG_LENGTH, truncations
 
 
 @pytest.mark.parametrize(
@@ -50,6 +50,13 @@ def test_overlong_input_is_rejected_before_parsing() -> None:
     assert Locale.try_parse("en-" + "a" * MAX_TAG_LENGTH) is None
 
 
+@pytest.mark.parametrize("value", [None, 5, b"en", ["en"]])
+def test_values_that_are_not_strings_are_rejected(value: object) -> None:
+    assert Locale.try_parse(value) is None
+    with pytest.raises(ValueError, match="not a valid language tag"):
+        Locale.parse(value)  # type: ignore[arg-type]
+
+
 @pytest.mark.parametrize(
     ("tag", "expected"),
     [
@@ -60,7 +67,7 @@ def test_overlong_input_is_rejected_before_parsing() -> None:
     ],
 )
 def test_truncations_follow_rfc_4647(tag: str, expected: list[str]) -> None:
-    assert [locale.tag for locale in Locale.parse(tag).truncations()] == expected
+    assert [locale.tag for locale in truncations(Locale.parse(tag))] == expected
 
 
 @pytest.mark.parametrize(

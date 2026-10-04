@@ -6,17 +6,21 @@ singular and plural templates so each language can apply its own plural rules.
 
 from __future__ import annotations
 
+import functools
+import math
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
 from fastapi_locale._catalog import BUILTIN_DOMAIN
+from fastapi_locale._formatting import format_message, placeholders
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping
+    from collections.abc import Iterable, Iterator, Mapping
 
     from fastapi_locale._translator import Translator
 
-__all__ = ["TEMPLATES", "ErrorLocalizer", "ErrorTemplate"]
+__all__ = ["TEMPLATES", "ErrorLocalizer", "ErrorTemplate", "all_templates"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -27,6 +31,8 @@ class ErrorTemplate:
     message: str
     plural: str | None = None
     count_key: str | None = None
+    # Used instead when the error has no value for one of this template's placeholders.
+    fallback: ErrorTemplate | None = None
 
 
 _ALL = (
@@ -73,6 +79,13 @@ _ALL = (
         "{field_type} should have at most {max_length} item after validation, not {actual_length}",
         plural="{field_type} should have at most {max_length} items after validation, not {actual_length}",
         count_key="max_length",
+        # Pydantic stops reading some inputs at the limit and then reports no actual length.
+        fallback=ErrorTemplate(
+            "too_long",
+            "{field_type} should have at most {max_length} item after validation, not more",
+            plural="{field_type} should have at most {max_length} items after validation, not more",
+            count_key="max_length",
+        ),
     ),
     ErrorTemplate("iterable_type", "Input should be iterable"),
     ErrorTemplate("iteration_error", "Error iterating over object, error: {error}"),
@@ -240,6 +253,15 @@ _ALL = (
 TEMPLATES: Mapping[str, ErrorTemplate] = {template.type: template for template in _ALL}
 
 
+def all_templates() -> Iterator[ErrorTemplate]:
+    """Yield every template, each followed by its fallbacks."""
+    for template in TEMPLATES.values():
+        current: ErrorTemplate | None = template
+        while current is not None:
+            yield current
+            current = current.fallback
+
+
 class ErrorLocalizer:
     """Rewrite the ``msg`` of Pydantic error dictionaries in the active translator's locale."""
 
@@ -261,21 +283,43 @@ class ErrorLocalizer:
 
     def _localize_one(self, error: Mapping[str, Any], translator: Translator) -> dict[str, Any]:
         template = self._templates.get(error.get("type", ""))
+        values: dict[str, object] = {
+            name: _display(value)
+            for name, value in (error.get("ctx") or {}).items()
+            if value is not None
+        }
+        while template is not None and not _names(template) <= values.keys():
+            template = template.fallback
         if template is None:
             return dict(error)
-        ctx: Mapping[str, object] = error.get("ctx") or {}
-        count = ctx.get(template.count_key) if template.count_key else None
-        if template.plural is not None and isinstance(count, int) and not isinstance(count, bool):
-            msg = translator.translate(
-                template.message,
-                plural=template.plural,
-                n=count,
-                context=template.type,
-                domain=self._domain,
-                params=ctx,
-            )
-        else:
-            msg = translator.translate(
-                template.message, context=template.type, domain=self._domain, params=ctx
-            )
+        count = values.get(template.count_key) if template.count_key else None
+        if template.plural is None or not isinstance(count, int) or isinstance(count, bool):
+            count = None
+        message = template.message
+        text = translator._find(
+            message, plural=template.plural, n=count, context=template.type, domain=self._domain
+        )
+        if text is None:
+            # Nothing to translate into: Pydantic's own message is the source-language text.
+            return dict(error)
+        if count is not None:
+            values.setdefault("n", count)
+        domain = self._domain
+        msg = format_message(
+            text, values, lambda name: translator._warn_missing(domain, message, name)
+        )
         return {**error, "msg": msg}
+
+
+@functools.cache
+def _names(template: ErrorTemplate) -> frozenset[str]:
+    """Placeholders a template needs from ``ctx``; ``n`` is supplied by the count itself."""
+    names = placeholders(template.message) | placeholders(template.plural or "")
+    return names - {"n"} if template.plural is not None else names
+
+
+def _display(value: object) -> object:
+    """Show numbers as Pydantic's messages do: ``2`` rather than ``2.0``, and no exponent."""
+    if isinstance(value, float) and math.isfinite(value):
+        return str(int(value)) if value.is_integer() else format(Decimal(repr(value)), "f")
+    return value

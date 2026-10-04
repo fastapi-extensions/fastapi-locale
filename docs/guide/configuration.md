@@ -25,12 +25,16 @@ i18n = Localization(
 | `catalog_dirs` | `()` | Directories laid out as `<dir>/<locale>/LC_MESSAGES/<domain>.mo`. Later directories override earlier ones. |
 | `default_domain` | `"messages"` | Domain used by `gettext()` and the other functions without a `d` prefix. |
 | `source_locale` | `"en"` | The language your msgids are written in. It needs no catalog. |
-| `sources` | query `lang`, cookie `locale`, `Accept-Language` | Where the locale comes from, in order. See [choosing the locale](locale-resolution.md). |
-| `builtin_error_messages` | `True` | Load the library's translations of the validation error messages. |
+| `sources` | query `lang`, then `Accept-Language` | Where the locale comes from, in order. See [choosing the locale](locale-resolution.md). |
+| `builtin_catalogs` | `True` | Load the library's own translations: the validation error messages and FastAPI's schema text. |
 | `localize_openapi` | `True` | Serve the OpenAPI schema in the request's locale. See [API documentation](api-documentation.md). |
 
 Tags are normalized, so `pt_BR`, `pt-br` and `pt-BR` all mean `pt-BR`. Invalid values raise
-`ConfigurationError` with the name of the option.
+`ConfigurationError` with the name of the option. List options take a list even for one entry:
+`catalog_dirs=["locales"]`, not `catalog_dirs="locales"`.
+
+`LocaleConfig` only checks the values. The catalog directories are read when the `Localization` is
+created, and a directory that does not exist raises `CatalogLoadError` there.
 
 ## Catalog layout
 
@@ -49,8 +53,14 @@ Directory names may use `_` or `-`. Commit the `.po` files; `.mo` files are buil
 A message missing in `pt-BR` is looked up in `pt`, then in the default locale's catalog, and finally the
 msgid itself is returned. A missing translation never causes an error.
 
+A locale in the source language is the exception: it never falls back to the default locale. With
+`default_locale="de"` and `source_locale="en"`, a request for `en` or `en-GB` gets the msgids, not the
+German text.
+
 ## Outside requests
 
 Code that runs outside a request (startup code, scripts, background workers) uses the default locale of
-the first `Localization` that was installed. Call `i18n.make_default()` to choose another one, or use
+the `Localization` that was installed last. Call `i18n.make_default()` to choose another one, or use
 [`use_locale()`](translating.md#another-locale-for-a-block) for a block of code.
+
+`install()` also stores the localization on the application as `app.state.localization`.

@@ -27,8 +27,8 @@ def connection() -> HTTPConnection:
 
 
 def test_resolution_budget(benchmark: Any, localization: Localization) -> None:
-    result = benchmark(lambda: localization.resolve(connection()))
-    assert result.locale.tag == "hi"
+    locale, decided_by = benchmark(lambda: localization._resolve(connection()))
+    assert (locale.tag, decided_by) == ("hi", "accept-language")
     assert benchmark.stats.stats.median < RESOLUTION_BUDGET
 
 

@@ -38,6 +38,7 @@ Differences to expect:
 
 - Lazy text works in Pydantic models, response models and `HTTPException.detail`.
 - Responses carry `Vary` as well as `Content-Language`.
+- The cookie is not read unless `CookieSource` is in `sources`.
 - In plural messages, use `{n}` for the count, or pass your own names:
   `ngettext("{count} file", "{count} files", n, count=n)`.
 - Date, number and timezone formatting are not part of fastapi-locale yet; keep using Babel's `format_*`
@@ -46,5 +47,5 @@ Differences to expect:
 ## From starlette-i18n
 
 Replace `LocaleMiddleware(catalog=...)` with `Localization(...).install(app)`. `gettext`, `ngettext` and
-`gettext_lazy` keep their names. The cookie and `Accept-Language` sources match starlette-i18n's
-defaults, with the `lang` query parameter added in front.
+`gettext_lazy` keep their names. starlette-i18n reads a cookie before `Accept-Language`; to keep that,
+pass `sources=[CookieSource(...), AcceptLanguageSource()]` with the name of your cookie.

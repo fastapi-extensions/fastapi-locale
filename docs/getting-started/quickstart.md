@@ -13,7 +13,9 @@ from pydantic import BaseModel, Field
 
 from fastapi_locale import LocaleConfig, Localization
 
-i18n = Localization(LocaleConfig(default_locale="en", supported_locales=["en", "de"]))
+i18n = Localization(
+    LocaleConfig(default_locale="en", supported_locales=["en", "de"])
+)
 app = FastAPI()
 i18n.install(app)
 
@@ -55,7 +57,7 @@ Tell the command line tool where your code and catalogs live, in `pyproject.toml
 ```toml
 [tool.fastapi-locale]
 sources = ["."]
-locales_dir = "locales"
+catalog_dir = "locales"
 ```
 
 Then create the German catalog:

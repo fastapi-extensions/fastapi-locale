@@ -13,18 +13,17 @@ package "Setup" as PSetup {
     +default_domain : str = "messages"
     +source_locale : str = "en"
     +sources : Sequence[LocaleSource] | None = None
-    +builtin_error_messages : bool = True
+    +builtin_catalogs : bool = True
+    +localize_openapi : bool = True
   }
   class Localization {
     +config : LocaleConfig
-    +default_locale : Locale
-    +supported_locales : tuple[Locale, ...]
     +__init__(config: LocaleConfig)
     +install(app: FastAPI) : None
     +make_default() : None
     +translator(locale: str | Locale) : Translator
-    +resolve(conn: HTTPConnection) : Resolution
-    +override(locale: str | Locale) : ContextManager[None]
+    +override(locale: str | Locale) : ContextManager[Locale]
+    -resolve(conn: HTTPConnection) : tuple[Locale, str]
   }
 }
 
@@ -36,24 +35,21 @@ package "Locale resolution" as PRes {
     +region : str | None
     +text_direction : Literal["ltr", "rtl"]
     +{static} parse(value: str) : Locale
-    +{static} try_parse(value: str) : Locale | None
-    +truncations() : Iterator[Locale]
+    +{static} try_parse(value: object) : Locale | None
   }
   interface LocaleSource <<Protocol>> {
-    +name : str
-    +vary : tuple[str, ...]
-    +__call__(conn: HTTPConnection) : Sequence[str]
+    +__call__(conn: HTTPConnection) : str | Sequence[str] | None
   }
   class QueryParamSource {
     +__init__(param: str = "lang")
   }
   class CookieSource {
-    +__init__(name: str = "locale")
+    +__init__(cookie: str = "locale")
   }
   class AcceptLanguageSource {
     +__init__(max_length: int = 1024)
   }
-  class Resolution <<frozen dataclass>> {
+  class RequestLocale {
     +locale : Locale
     +decided_by : str
   }
@@ -67,8 +63,7 @@ package "Translation" as PTr {
   class CatalogStore {
     +{static} load(supported, default, source, directories, builtin, default_domain) : CatalogStore
     +translator_for(locale: str | Locale) : Translator
-    +match(tag: str) : Locale | None
-    +translator(locale: Locale) : Translator
+    +match(value: object) : Locale | None
     +locales : frozenset[Locale]
     +domains : frozenset[str]
   }
@@ -82,12 +77,6 @@ package "Translation" as PTr {
     +dngettext(domain, singular, plural, n, /, **params) : str
     +dpgettext(domain, context, message, /, **params) : str
     +dnpgettext(domain, context, singular, plural, n, /, **params) : str
-  }
-  class RequestLocale <<internal>> {
-    +translator : Translator
-    +decided_by : str
-    +overridden : bool
-    +change(translator: Translator) : None
   }
   class LazyText <<final>> {
     -message : str
@@ -111,6 +100,7 @@ package "Errors" as PErr {
     +message : str
     +plural : str | None
     +count_key : str | None
+    +fallback : ErrorTemplate | None
   }
   class ErrorLocalizer {
     +__init__(templates: Mapping[str, ErrorTemplate])
@@ -127,9 +117,8 @@ QueryParamSource ..|> LocaleSource
 CookieSource ..|> LocaleSource
 AcceptLanguageSource ..|> LocaleSource
 LocaleMiddleware --> "1" Localization
-LocaleMiddleware ..> Resolution : creates
 LocaleMiddleware ..> RequestLocale : opens per request
-Resolution --> "1" Locale
+RequestLocale --> "1" Locale
 CatalogStore *-- "1..*" Translator : one per locale
 Translator --> "1" Locale
 RequestLocale --> "1" Translator

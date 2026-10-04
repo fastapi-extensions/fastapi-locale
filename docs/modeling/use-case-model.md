@@ -3,10 +3,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Use case model |
-| Version | 1.1 |
+| Version | 1.2 |
 | Status | Approved |
-| Owner | Kapil Dagur |
-| Last updated | 2026-09-28 |
+| Owner | fastapi-locale contributors |
+| Last updated | 2026-10-04 |
 
 ## 1. Purpose
 
@@ -46,7 +46,8 @@ Main flow:
 
 1. The client sends a request with a language preference in a query parameter, cookie or `Accept-Language`.
 2. The library asks each configured locale source in order for candidate language tags.
-3. The library matches the candidates against the supported locales using RFC 4647 lookup.
+3. The library matches the candidates against the supported locales using RFC 4647 lookup and, when
+   that finds nothing, a supported locale in the same language.
 4. The library makes the matched locale active for the rest of the request.
 5. The route handler builds the response, translating text in the active locale.
 6. The library adds `Content-Language` and merges the source headers into `Vary`.
@@ -83,7 +84,11 @@ Alternate flows:
 
 - 4a. The error `type` has no template (a custom error type). The handler keeps Pydantic's `msg`.
 - 4b. The application ships its own translation for the type. It takes priority over the built-in one.
-- 5a. The translated template names a placeholder that `ctx` does not have. The handler leaves the
+- 5a. No catalog translates the template in the active locale, as in the source language. The handler
+  keeps Pydantic's `msg`.
+- 5b. The error has no value in `ctx` for a placeholder of the template. The handler keeps Pydantic's
+  `msg`.
+- 5c. The translated template names a placeholder that `ctx` does not have. The handler leaves the
   placeholder as written and logs a warning. The response is still a 422.
 
 ### UC-03 Translate a message in application code
@@ -146,8 +151,8 @@ Main flow:
 
 Alternate flows:
 
-- 3a. The user's language is not supported. `set_locale` falls back through RFC 4647 lookup; if nothing
-  matches it raises `UnsupportedLocaleError`, which the application can catch and ignore.
+- 3a. The user's language is not supported, or the user has none. `set_locale` matches as in UC-01; if
+  nothing matches it raises `UnsupportedLocaleError`, which the application can catch and ignore.
 - 3b. Validation fails in a parameter of `current_user` itself, so the dependency never runs. The request
   keeps the locale resolved in step 1. This is a known limit, recorded in ADR-0004.
 
@@ -161,7 +166,8 @@ Alternate flows:
 
 Main flow:
 
-1. The developer runs `fastapi-locale extract` and the tool writes `messages.pot`.
+1. The developer runs `fastapi-locale extract` and the tool writes one template per domain,
+   `messages.pot` by default.
 2. For a new language the developer runs `fastapi-locale init --locale <tag>`; otherwise
    `fastapi-locale update` merges the template into every `.po` file.
 3. The translator translates the `.po` file in any gettext tool.
@@ -202,7 +208,7 @@ Alternate flows:
 Main flow:
 
 1. The browser opens `/docs`; Swagger UI fetches `/openapi.json` and sends the browser's
-   `Accept-Language` (or the locale cookie).
+   `Accept-Language`.
 2. The library resolves the locale as in UC-01.
 3. The first request for that locale translates FastAPI's generated schema and caches it; later requests
    get the cached copy.

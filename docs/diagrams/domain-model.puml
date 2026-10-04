@@ -21,6 +21,7 @@ package "Locale resolution" as P_RES {
   }
   class Negotiation <<domain service>> {
     RFC 4647 lookup
+    same-language match
   }
   class SupportedLocales {
     default locale
@@ -36,7 +37,6 @@ package "Locale resolution" as P_RES {
   class RequestLocale <<entity>> {
     locale
     decided by
-    overridden
   }
 }
 

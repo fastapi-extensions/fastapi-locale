@@ -1,6 +1,9 @@
 """Internationalization for FastAPI: gettext catalogs, per-request locales and localized errors."""
 
+from importlib.metadata import PackageNotFoundError, version
+
 from fastapi_locale._context import (
+    RequestLocale,
     dgettext,
     dngettext,
     dnpgettext,
@@ -29,6 +32,7 @@ from fastapi_locale.exceptions import (
     ConfigurationError,
     LocalizationError,
     LocalizationNotConfiguredError,
+    NoActiveRequestError,
     UnsupportedLocaleError,
 )
 from fastapi_locale.handlers import (
@@ -38,12 +42,16 @@ from fastapi_locale.handlers import (
 )
 from fastapi_locale.lazy import (
     LazyText,
+    dgettext_lazy,
+    dngettext_lazy,
+    dnpgettext_lazy,
+    dpgettext_lazy,
     gettext_lazy,
     ngettext_lazy,
     npgettext_lazy,
     pgettext_lazy,
 )
-from fastapi_locale.localization import Localization, Resolution
+from fastapi_locale.localization import Localization
 from fastapi_locale.middleware import LocaleMiddleware
 from fastapi_locale.openapi import localize_openapi
 from fastapi_locale.sources import (
@@ -52,6 +60,11 @@ from fastapi_locale.sources import (
     LocaleSource,
     QueryParamSource,
 )
+
+try:
+    __version__ = version("fastapi-locale")
+except PackageNotFoundError:  # pragma: no cover - only in a source tree that is not installed
+    __version__ = "0+unknown"
 
 __all__ = [
     "AcceptLanguageSource",
@@ -67,17 +80,22 @@ __all__ = [
     "Localization",
     "LocalizationError",
     "LocalizationNotConfiguredError",
+    "NoActiveRequestError",
     "QueryParamSource",
-    "Resolution",
+    "RequestLocale",
     "Translator",
     "TranslatorDep",
     "UnsupportedLocaleError",
     "current_locale",
     "current_translator",
     "dgettext",
+    "dgettext_lazy",
     "dngettext",
+    "dngettext_lazy",
     "dnpgettext",
+    "dnpgettext_lazy",
     "dpgettext",
+    "dpgettext_lazy",
     "get_locale",
     "get_translator",
     "gettext",

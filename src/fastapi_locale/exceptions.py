@@ -7,12 +7,13 @@ __all__ = [
     "ConfigurationError",
     "LocalizationError",
     "LocalizationNotConfiguredError",
+    "NoActiveRequestError",
     "UnsupportedLocaleError",
 ]
 
 
 class LocalizationError(Exception):
-    """Base class for every error raised by this library."""
+    """Base class for the errors this library raises on purpose."""
 
 
 class ConfigurationError(LocalizationError, ValueError):
@@ -29,3 +30,7 @@ class UnsupportedLocaleError(LocalizationError, LookupError):
 
 class LocalizationNotConfiguredError(LocalizationError, RuntimeError):
     """Translation was requested where no localization is available."""
+
+
+class NoActiveRequestError(LocalizationError, RuntimeError):
+    """The request's locale was changed where no request is being handled."""

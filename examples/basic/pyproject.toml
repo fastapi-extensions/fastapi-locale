@@ -1,5 +1,5 @@
 # Settings for the fastapi-locale command line tool, run from this directory.
 [tool.fastapi-locale]
 sources = ["."]
-locales_dir = "locales"
-domain = "messages"
+catalog_dir = "locales"
+default_domain = "messages"

@@ -37,7 +37,7 @@ With nothing more than this, a German client already gets German validation erro
 
 | Feature | What it does |
 | --- | --- |
-| **Per-request locale** | From a query parameter, cookie or `Accept-Language`, matched with RFC 4647 and announced with `Content-Language` and `Vary`. |
+| **Per-request locale** | From a query parameter, `Accept-Language` or a cookie, matched with RFC 4647 and announced with `Content-Language` and `Vary`. |
 | **Localized validation errors** | Every Pydantic error type, with plural forms that follow each language. The response shape stays exactly FastAPI's. |
 | **Localized API docs** | Swagger UI and ReDoc follow the browser's language. |
 | **Lazy text** | Translatable text in Pydantic models, response models and `HTTPException.detail`. |

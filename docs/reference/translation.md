@@ -19,5 +19,3 @@
 ::: fastapi_locale.gettext_noop
 
 ::: fastapi_locale.Translator
-
-::: fastapi_locale.Locale

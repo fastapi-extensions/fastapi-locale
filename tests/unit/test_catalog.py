@@ -146,3 +146,82 @@ def test_no_warning_when_only_builtin_messages_are_used(caplog: pytest.LogCaptur
     with caplog.at_level(logging.WARNING, logger="fastapi_locale"):
         load([], supported=["en", "de"])
     assert not caplog.records
+
+
+def test_source_language_does_not_fall_back_to_the_default_locale(catalog_dir: Path) -> None:
+    store = load([catalog_dir], supported=["de", "en", "en-GB", "fr"])
+    for tag in ("en", "en-GB"):
+        translator = store.translator_for(tag)
+        assert translator.gettext("Item not found") == "Item not found"
+        assert (
+            translator.dpgettext("fastapi_locale", "missing", "Field required") == "Field required"
+        )
+    assert store.translator_for("fr").gettext("Item not found") == "Artikel nicht gefunden"
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("pt-BR", "pt-BR"),
+        ("pt", "pt-BR"),
+        ("pt-PT", "pt-BR"),
+        ("zh", "zh-Hans"),
+        ("zh-TW", "zh-Hans"),
+        ("zh-Hans-CN", "zh-Hans"),
+        ("zh-Hant-TW", None),
+        ("sw", None),
+    ],
+)
+def test_match_falls_back_to_another_region_of_the_language(
+    value: str, expected: str | None
+) -> None:
+    matched = load([], supported=["en", "pt-BR", "zh-Hans"]).match(value)
+    assert (matched.tag if matched else None) == expected
+
+
+def test_lookup_is_preferred_over_another_region(catalog_dir: Path) -> None:
+    store = load([catalog_dir])
+    assert store.match("pt-PT") == Locale.parse("pt")
+
+
+@pytest.mark.parametrize("supported", ["pt", "pt-PT", "pt-BR"])
+def test_builtin_regional_catalog_serves_its_language(supported: str) -> None:
+    translator = load([], supported=["en", supported]).translator_for(supported)
+    assert (
+        translator.dpgettext("fastapi_locale", "missing", "Field required") == "Campo obrigatório"
+    )
+
+
+def test_values_that_cannot_be_tags_are_refused_before_the_cache(catalog_dir: Path) -> None:
+    store = load([catalog_dir])
+    for value in (None, 5, b"de", "x" * 65, "de" + "-x" * 4000):
+        assert store.match(value) is None
+    assert store._matches == {}
+    with pytest.raises(UnsupportedLocaleError, match="None is not supported"):
+        store.translator_for(None)  # type: ignore[arg-type]
+
+
+def damaged(data: bytes, kind: str) -> bytes:
+    if kind == "empty":
+        return b""
+    if kind == "truncated":
+        return data[:30]
+    return data.replace(b"charset=utf-8", b"charset=xtf-9")
+
+
+@pytest.mark.parametrize("kind", ["empty", "truncated", "unknown charset"])
+def test_unreadable_catalogs_fail_with_the_file_name(tmp_path: Path, kind: str) -> None:
+    messages = tmp_path / "de" / "LC_MESSAGES"
+    messages.mkdir(parents=True)
+    (messages / "messages.po").write_text(
+        'msgid ""\nmsgstr ""\n"Content-Type: text/plain; charset=utf-8\\n"\n\n'
+        'msgid "Hello"\nmsgstr "Hallo"\n',
+        encoding="utf-8",
+    )
+    compile_catalogs(tmp_path, tmp_path)
+    compiled = messages / "messages.mo"
+    data = compiled.read_bytes()
+    assert damaged(data, kind) != data
+    compiled.write_bytes(damaged(data, kind))
+    with pytest.raises(CatalogLoadError, match=r"messages\.mo"):
+        load([tmp_path], supported=["en", "de"])

@@ -539,6 +539,13 @@ msgstr[1] "{field_type} deve ter pelo menos {min_length} itens após a validaç�
 
 #, python-brace-format
 msgctxt "too_long"
+msgid "{field_type} should have at most {max_length} item after validation, not more"
+msgid_plural "{field_type} should have at most {max_length} items after validation, not more"
+msgstr[0] "{field_type} deve ter no máximo {max_length} item após a validação, não mais"
+msgstr[1] "{field_type} deve ter no máximo {max_length} itens após a validação, não mais"
+
+#, python-brace-format
+msgctxt "too_long"
 msgid "{field_type} should have at most {max_length} item after validation, not {actual_length}"
 msgid_plural "{field_type} should have at most {max_length} items after validation, not {actual_length}"
 msgstr[0] "{field_type} deve ter no máximo {max_length} item após a validação, não {actual_length}"

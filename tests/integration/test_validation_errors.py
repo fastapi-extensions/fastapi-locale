@@ -14,6 +14,7 @@ class Item(BaseModel):
     title: str = Field(min_length=3)
     price: int = Field(gt=0)
     tags: list[str] = Field(default_factory=list, max_length=2)
+    weight: float = Field(default=1, gt=0, le=1e16)
 
 
 def routes(app: FastAPI) -> None:
@@ -27,7 +28,7 @@ def routes(app: FastAPI) -> None:
         return item
 
 
-BAD = {"title": "ab", "price": 0, "tags": ["a", "b", "c"]}
+BAD = {"title": "ab", "price": 0, "tags": ["a", "b", "c"], "weight": 0}
 
 
 @pytest.fixture
@@ -57,10 +58,21 @@ def test_english_is_identical_to_fastapi(plain: TestClient, localized: TestClien
     assert call(localized, "en") == call(plain, "en")
 
 
+def test_english_is_identical_to_fastapi_for_malformed_bodies(
+    plain: TestClient, localized: TestClient
+) -> None:
+    for content in (b"{bad json", b"", b"[1]"):
+        responses = [
+            client.post("/items/1", content=content, headers={"Content-Type": "application/json"})
+            for client in (plain, localized)
+        ]
+        assert responses[0].json() == responses[1].json()
+
+
 def test_only_msg_differs(plain: TestClient, localized: TestClient) -> None:
     expected = call(plain, "en")["detail"]
     actual = call(localized, "de")["detail"]
-    assert len(actual) == len(expected) == 6
+    assert len(actual) == len(expected) == 7
     for before, after in zip(expected, actual, strict=True):
         assert {k: v for k, v in before.items() if k != "msg"} == {
             k: v for k, v in after.items() if k != "msg"
@@ -115,3 +127,13 @@ def test_builtin_translations(
     by_type = {error["type"]: error["msg"] for error in detail}
     assert by_type["greater_than"] == greater_than
     assert by_type["string_too_short"] == too_short
+
+
+def test_numbers_read_as_they_do_in_fastapi(localized: TestClient) -> None:
+    detail = localized.post(
+        "/items/1", json={**BAD, "weight": 1e17}, headers={"Accept-Language": "fr"}
+    ).json()["detail"]
+    by_type = {error["type"]: error["msg"] for error in detail}
+    assert (
+        by_type["less_than_equal"] == "L'entrée doit être inférieure ou égale à 10000000000000000"
+    )

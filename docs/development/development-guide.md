@@ -3,18 +3,18 @@
 | Field | Value |
 | --- | --- |
 | Document | Development guide |
-| Version | 1.1 |
+| Version | 1.2 |
 | Status | Approved |
-| Owner | Kapil Dagur |
-| Last updated | 2026-09-28 |
+| Owner | fastapi-locale contributors |
+| Last updated | 2026-10-04 |
 
 ## 1. Set up
 
 ### Dev container (recommended)
 
 Open the repository in VS Code and choose "Reopen in Container". The container has Python 3.12, uv,
-Node (for markdownlint) and access to the host's Docker (for diagrams). `post-create.sh` installs the
-locked environment and the git hooks, then prints the tool versions.
+Node (for markdownlint and Prettier) and access to the host's Docker (for diagrams). `post-create.sh`
+installs the locked environment and the git hooks, then prints the tool versions.
 
 ### Without a container
 
@@ -25,13 +25,15 @@ make dev    # uv sync --locked, then pre-commit install
 ```
 
 uv installs the right Python version if it is missing. Docker is only needed for `make diagrams`.
+markdownlint and Prettier run through pre-commit, which keeps its own Node environment for them, so Node
+does not have to be installed.
 
 ## 2. Everyday commands
 
 | Command | What it runs |
 | --- | --- |
-| `make fmt` | Ruff fixes and formatting |
-| `make check` | Ruff, format check, mypy strict, import-linter layering contracts, bandit |
+| `make fmt` | Ruff fixes and formatting; Prettier for the site's HTML, CSS and JavaScript |
+| `make check` | Ruff, format checks (Ruff and Prettier), mypy strict, import-linter layering contracts, bandit |
 | `make test` | Unit tests |
 | `make test-int` | Integration tests |
 | `make test-e2e` | End-to-end tests (Uvicorn and the CLI in subprocesses) |
@@ -41,7 +43,8 @@ uv installs the right Python version if it is missing. Docker is only needed for
 | `make diagrams` | Render PlantUML sources to SVG with the pinned Docker image |
 | `make build` | Wheel and sdist |
 
-The git hooks run Ruff, mypy, import-linter and markdownlint on each commit.
+The git hooks run Ruff, mypy, import-linter, markdownlint and Prettier on each commit. Prettier is pinned
+in `.pre-commit-config.yaml` and formats only `docs/**/*.{html,css,js}` (ADR-0015).
 
 ## 3. Repository layout
 
@@ -56,6 +59,8 @@ tests/data/locales/     .po files used by tests, compiled per session
 examples/basic/         a runnable example application
 docs/                   documentation site and engineering documents
 docs/diagrams/          PlantUML sources and rendered SVGs
+docs/stylesheets/       the site's own CSS, loaded after the theme's
+docs/javascripts/       the site's own JavaScript
 scripts/                maintenance scripts
 ```
 
@@ -68,8 +73,10 @@ The English templates are the `TEMPLATES` table in `src/fastapi_locale/_errors_c
 changing it:
 
 ```sh
-uv run python scripts/sync_error_catalog.py          # rewrite the .pot and merge into every .po
-uv run python scripts/sync_error_catalog.py --init ja   # start a new language
+# rewrite the .pot and merge it into every .po
+uv run python scripts/sync_error_catalog.py
+# start a new language
+uv run python scripts/sync_error_catalog.py --init ja
 ```
 
 CI runs the same script with `--check`. A unit test fails when pydantic-core gains an error type that has
@@ -81,6 +88,9 @@ Diagrams are UML in PlantUML, sources in `docs/diagrams/*.puml`, one shared styl
 `docs/diagrams/include/style.iuml`. Run `make diagrams` and commit the `.puml` and `.svg` files together.
 CI renders them again and fails if the committed SVGs differ.
 
+Most diagrams are wider than the text column of the site. `docs/javascripts/extra.js` turns each one into
+a link to its SVG file, so a reader can open it at full size.
+
 ## 6. Tests
 
 Follow the [test plan](../testing/test-plan.md). Put a test at the lowest level that can prove the
@@ -91,7 +101,7 @@ directory. Warnings are errors, so a deprecation in a dependency shows up at onc
 
 | Job | Purpose |
 | --- | --- |
-| Lint, types, layering, security | Static checks, catalog sync, markdownlint |
+| Lint, types, layering, security | Static checks, format of the site assets, catalog sync, markdownlint |
 | Tests / Python 3.11 to 3.14 | Whole suite with coverage |
 | Lowest supported dependencies | Unit and integration tests with the lowest allowed FastAPI, Pydantic and Babel |
 | Tests / macOS, Windows | Unit and integration tests |

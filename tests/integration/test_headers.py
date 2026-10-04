@@ -6,7 +6,13 @@ from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import StreamingResponse
 from fastapi.testclient import TestClient
 
-from fastapi_locale import LocaleConfig, Localization, QueryParamSource
+from fastapi_locale import (
+    AcceptLanguageSource,
+    CookieSource,
+    LocaleConfig,
+    Localization,
+    QueryParamSource,
+)
 
 
 def test_content_language_and_vary(app: FastAPI, client: TestClient) -> None:
@@ -16,7 +22,7 @@ def test_content_language_and_vary(app: FastAPI, client: TestClient) -> None:
 
     response = client.get("/", headers={"Accept-Language": "de"})
     assert response.headers["content-language"] == "de"
-    assert response.headers["vary"] == "Cookie, Accept-Language"
+    assert response.headers["vary"] == "Accept-Language"
 
 
 def test_existing_headers_are_respected(app: FastAPI, client: TestClient) -> None:
@@ -33,8 +39,32 @@ def test_existing_headers_are_respected(app: FastAPI, client: TestClient) -> Non
 
     response = client.get("/own", headers={"Accept-Language": "de"})
     assert response.headers["content-language"] == "x-custom"
-    assert response.headers["vary"] == "Origin, accept-language, Cookie"
+    assert response.headers["vary"] == "Origin, accept-language"
     assert client.get("/star").headers["vary"] == "*"
+
+
+def test_every_vary_line_of_the_response_is_kept(app: FastAPI, client: TestClient) -> None:
+    @app.get("/")
+    async def index(response: Response) -> dict[str, str]:
+        response.headers.append("Vary", "Origin")
+        response.headers.append("Vary", "Accept-Encoding, accept-language")
+        return {}
+
+    assert client.get("/").headers.get_list("vary") == ["Origin, Accept-Encoding, accept-language"]
+
+
+def test_vary_names_the_headers_of_every_configured_source(
+    make_config: Callable[..., LocaleConfig],
+) -> None:
+    app = FastAPI()
+    sources = [QueryParamSource(), CookieSource(), AcceptLanguageSource()]
+    Localization(make_config(sources=sources)).install(app)
+
+    @app.get("/")
+    async def index() -> dict[str, str]:
+        return {}
+
+    assert TestClient(app).get("/").headers["vary"] == "Cookie, Accept-Language"
 
 
 def test_streaming_and_error_responses(app: FastAPI, client: TestClient) -> None:

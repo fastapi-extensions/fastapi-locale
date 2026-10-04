@@ -8,12 +8,12 @@ start
 :run fastapi-locale extract;
 |CLI|
 :scan sources with Babel extractors;
-:write messages.pot;
+:write one template per domain\n(messages.pot, admin.pot);
 |Developer|
 if (new language?) then (yes)
   :run fastapi-locale init --locale <tag>;
   |CLI|
-  :create <tag>/LC_MESSAGES/messages.po\nwith CLDR plural rules;
+  :create <tag>/LC_MESSAGES/<domain>.po\nwith CLDR plural rules;
 else (no)
   |Developer|
   :run fastapi-locale update;

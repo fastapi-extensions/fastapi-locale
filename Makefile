@@ -1,8 +1,8 @@
 # Developer workflow for fastapi-locale. Every target runs through uv.
 #
 #   make dev        install the locked environment
-#   make lint       ruff check and format check, markdownlint
-#   make fmt        apply ruff fixes and formatting
+#   make lint       ruff check and format check, Prettier check of the docs assets
+#   make fmt        apply ruff fixes and formatting, format the docs assets with Prettier
 #   make type       mypy --strict
 #   make layers     import-linter layering contracts
 #   make security   bandit scan
@@ -21,6 +21,8 @@
         diagrams docs build clean
 
 PYTEST    := uv run pytest
+# Prettier runs through pre-commit, which pins its version and keeps a Node environment for it.
+PRETTIER  := uv run pre-commit run --all-files
 COV_FLAGS := --cov --cov-report=term-missing --cov-report=xml:coverage.xml
 
 dev:
@@ -30,10 +32,12 @@ dev:
 lint:
 	uv run ruff check src tests examples
 	uv run ruff format --check src tests examples
+	$(PRETTIER) --hook-stage manual prettier-check
 
 fmt:
 	uv run ruff check --fix src tests examples
 	uv run ruff format src tests examples
+	$(PRETTIER) prettier || $(PRETTIER) --hook-stage manual prettier-check
 
 type:
 	uv run mypy

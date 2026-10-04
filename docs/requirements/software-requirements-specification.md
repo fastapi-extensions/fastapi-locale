@@ -2,12 +2,12 @@
 
 | Field | Value |
 | --- | --- |
-| Project | fastapi-locale (working name) |
+| Project | fastapi-locale |
 | Document | Software Requirements Specification (SRS) |
-| Version | 1.1 |
+| Version | 1.2 |
 | Status | Approved |
-| Owner | Kapil Dagur |
-| Last updated | 2026-09-28 |
+| Owner | fastapi-locale contributors |
+| Last updated | 2026-10-04 |
 
 ## 1. Introduction
 
@@ -147,7 +147,7 @@ requirement: 0.1 is the first public release, "later" is after 0.1.
 | LOC-05 | A path prefix source (for example `/hi/items`) shall be available. | C | later |
 | LOC-06 | Applications shall be able to add their own source as a plain callable. | M | 0.1 |
 | LOC-07 | `Accept-Language` shall be parsed per RFC 9110, including q-values, and entries with `q=0` shall be treated as refused. | M | 0.1 |
-| LOC-08 | Matching shall follow RFC 4647 lookup: a requested `hi-IN` falls back to `hi` when only `hi` is supported. | M | 0.1 |
+| LOC-08 | Matching shall follow RFC 4647 lookup: a requested `hi-IN` falls back to `hi` when only `hi` is supported. When lookup finds nothing, a supported locale in the same language shall be used before the default locale. | M | 0.1 |
 | LOC-09 | Tags shall be normalized so `pt_BR`, `pt-br` and `pt-BR` are treated as the same locale. | M | 0.1 |
 | LOC-10 | Responses shall carry `Content-Language` with the resolved locale. | M | 0.1 |
 | LOC-11 | Responses shall carry a `Vary` header naming every request header the configured sources read (for example `Accept-Language`, `Cookie`), merged with any existing `Vary` value. | M | 0.1 |
@@ -188,7 +188,7 @@ requirement: 0.1 is the first public release, "later" is after 0.1.
 | ERR-04 | Errors whose message depends on a number (for example `min_length`) shall use the target locale's plural rules. | M | 0.1 |
 | ERR-05 | The library shall ship a message template covering every error `type` of the supported pydantic-core versions. | M | 0.1 |
 | ERR-06 | Applications shall be able to override any built-in error message through their own catalog. | M | 0.1 |
-| ERR-07 | An error `type` with no entry shall fall back to Pydantic's original `msg`. | M | 0.1 |
+| ERR-07 | An error `type` with no entry, or with no translation in the request locale, shall keep Pydantic's original `msg`. | M | 0.1 |
 | ERR-08 | Messages from custom validators (`ValueError`, `PydanticCustomError`) that the application translated shall be passed through, and the Pydantic prefix such as `Value error,` shall be localized. | S | 0.1 |
 | ERR-09 | The library shall provide an HTTP exception handler that renders lazy `detail` values in the request locale. | M | 0.1 |
 | ERR-10 | The library shall ship translations of the error messages for an initial set of languages (see OI-04). | S | 0.1 |
@@ -211,6 +211,7 @@ requirement: 0.1 is the first public release, "later" is after 0.1.
 | CLI-02 | It shall create a new locale's `.po` file, update existing `.po` files from the template, and compile `.po` to `.mo`. | M | 0.1 |
 | CLI-03 | The tool shall read its settings from `pyproject.toml`. | S | 0.1 |
 | CLI-04 | A check command shall exit non-zero when catalogs are out of date, have fuzzy or missing entries, or have translations whose placeholders differ from the msgid, for use in CI. | S | 0.1 |
+| CLI-05 | The tool shall keep one template and one catalog per domain, and shall compile every domain. | S | 0.1 |
 
 ### 3.8 Testing support (TST)
 
@@ -255,6 +256,7 @@ requirement: 0.1 is the first public release, "later" is after 0.1.
 | NFR-12 | Usability | A new user can localize 422 errors in an existing app with no more than five lines of setup, following the quick start. | Documentation review |
 | NFR-13 | Documentation | Every public function and class is documented in the published reference docs, with a runnable example for each use case. | Docs build in CI |
 | NFR-14 | Portability | The library runs unmodified on Linux, macOS and Windows. | CI matrix |
+| NFR-15 | Maintainability | The public API is defined in the reference documentation, and incompatible changes to it follow semantic versioning. | Unit test of the exported names, review |
 
 ## 5. Out of scope
 

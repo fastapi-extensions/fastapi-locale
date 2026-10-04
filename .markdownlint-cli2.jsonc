@@ -1,4 +1,4 @@
 {
   // Generated and third-party files are not ours to lint.
-  "ignores": [".venv/**", "site/**", "node_modules/**", "dist/**", "build/**"]
+  "ignores": [".venv/**", ".tmp/**", "site/**", "node_modules/**", "dist/**", "build/**"]
 }

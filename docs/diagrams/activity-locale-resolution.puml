@@ -22,6 +22,11 @@ while (more sources in configured order?) is (yes)
         endif
         :drop the last subtag\n(hi-Latn-IN, hi-Latn, hi);
       repeat while (subtags left?) is (yes)
+      if (a supported locale has the same language\nand no other script?) then (yes)
+        :record which source decided;
+        :return that locale;
+        stop
+      endif
     endif
   endwhile (no)
 endwhile (no)

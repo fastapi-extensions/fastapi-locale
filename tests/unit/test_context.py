@@ -5,6 +5,7 @@ import pytest
 from fastapi_locale import (
     Localization,
     LocalizationNotConfiguredError,
+    NoActiveRequestError,
     UnsupportedLocaleError,
     dgettext,
     dngettext,
@@ -20,7 +21,12 @@ from fastapi_locale import (
     set_locale,
     use_locale,
 )
-from fastapi_locale._context import current_request_locale, enter_request, exit_request
+from fastapi_locale._context import (
+    current_request_locale,
+    enter_request,
+    exit_request,
+    use_default_locale,
+)
 
 
 def test_nothing_configured_raises() -> None:
@@ -38,8 +44,8 @@ def test_process_default_is_used_outside_requests(localization: Localization) ->
 
 def test_use_locale_switches_and_restores(localization: Localization) -> None:
     localization.make_default()
-    with use_locale("de") as translator:
-        assert translator.locale.tag == "de"
+    with use_locale("de-AT") as locale:
+        assert locale.tag == "de"
         assert gettext("Hello") == "Hallo"
         with use_locale("fr"):
             assert gettext("Hello") == "Bonjour"
@@ -76,20 +82,21 @@ def test_module_functions_delegate(localization: Localization) -> None:
 
 def test_set_locale_outside_a_request_raises(localization: Localization) -> None:
     localization.make_default()
-    with pytest.raises(LocalizationNotConfiguredError, match="only during a request"):
+    with pytest.raises(NoActiveRequestError, match="only during a request"):
         set_locale("de")
-    with use_locale("fr"), pytest.raises(LocalizationNotConfiguredError):
+    with use_locale("fr"), pytest.raises(NoActiveRequestError):
         set_locale("de")
 
 
 def test_set_locale_changes_the_request_holder(localization: Localization) -> None:
-    store = localization.store
+    store = localization._store
     holder, token = enter_request(store.default_translator, "default", store)
     try:
+        assert holder.decided_by == "default"
         assert set_locale("hi-IN").tag == "hi"
         assert holder.locale.tag == "hi"
-        assert holder.overridden
-        assert repr(holder) == "RequestLocale('hi', decided_by='default')"
+        assert holder.decided_by == "set_locale"
+        assert repr(holder) == "RequestLocale('hi', decided_by='set_locale')"
         with use_locale("fr"):
             assert gettext("Hello") == "Bonjour"
             set_locale("de")
@@ -98,6 +105,20 @@ def test_set_locale_changes_the_request_holder(localization: Localization) -> No
         assert gettext("Hello") == "Hallo"
         with pytest.raises(UnsupportedLocaleError):
             set_locale("sw")
+        for missing in (None, ""):
+            with pytest.raises(UnsupportedLocaleError):
+                set_locale(missing)  # type: ignore[arg-type]
+        assert get_locale().tag == "de"
     finally:
         exit_request(token)
     assert current_request_locale() is None
+
+
+def test_use_default_locale(localization: Localization) -> None:
+    with use_default_locale():  # nothing set up yet: the block simply runs
+        pass
+    localization.make_default()
+    with use_locale("de"):
+        with use_default_locale():
+            assert get_locale().tag == "en"
+        assert get_locale().tag == "de"
