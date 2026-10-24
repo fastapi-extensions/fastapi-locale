@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.2.0
+      - uses: astral-sh/setup-uv@v10.3.1
       - run: uv sync --locked
       - run: uv run pytest
       - run: uv build
@@ -106,7 +106,7 @@ jobs:
     needs: [validate, publish]
     runs-on: ubuntu-latest
     steps:
-      - uses: astral-sh/setup-uv@v10.2.0
+      - uses: astral-sh/setup-uv@v10.3.1
       - name: Install the published version and use it
         env:
           VERSION: ${{ needs.validate.outputs.version }}
